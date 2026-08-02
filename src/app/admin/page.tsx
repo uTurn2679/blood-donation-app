@@ -2,6 +2,8 @@ import { prisma } from "@/lib/prisma";
 import { Users, FileSpreadsheet, Activity, Database } from "lucide-react";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminDashboard() {
   const totalDonors = await prisma.donorProfile.count();
   const totalRequests = await prisma.bloodRequest.count();
