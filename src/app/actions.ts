@@ -1,6 +1,5 @@
 "use server";
 
-import * as xlsx from 'xlsx';
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
@@ -128,6 +127,7 @@ export async function importExcelData(formData: FormData) {
   const arrayBuffer = await file.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
 
+  const xlsx = await import("xlsx");
   const workbook = xlsx.read(buffer, { type: "buffer" });
   const sheetName = workbook.SheetNames[0];
   const worksheet = workbook.Sheets[sheetName];
