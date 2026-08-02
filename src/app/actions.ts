@@ -1,6 +1,5 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 
@@ -17,6 +16,9 @@ export async function registerDonor(formData: FormData) {
   if (!name || !phone || !bloodGroup) {
     throw new Error("Missing required fields (Name, Phone, Blood Group)");
   }
+
+  // Dynamically import prisma to prevent Vercel Turbopack build crash
+  const { prisma } = await import("@/lib/prisma");
 
   // Check if user already exists
   const existingUser = await prisma.user.findUnique({
@@ -61,6 +63,9 @@ export async function submitBloodRequest(formData: FormData) {
     throw new Error("Missing fields");
   }
 
+  // Dynamically import prisma to prevent Vercel Turbopack build crash
+  const { prisma } = await import("@/lib/prisma");
+
   // Ensure user exists (simple logic for MVP: create a temporary USER if they don't exist)
   let user = await prisma.user.findUnique({
     where: { phone },
@@ -99,6 +104,7 @@ export async function loginUser(formData: FormData) {
     throw new Error("Phone and password are required");
   }
 
+  const { prisma } = await import("@/lib/prisma");
   const user = await prisma.user.findUnique({
     where: { phone },
   });
@@ -156,6 +162,7 @@ export async function importExcelData(formData: FormData) {
       continue; // Skip rows missing required fields
     }
 
+    const { prisma } = await import("@/lib/prisma");
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
       where: { phone },
