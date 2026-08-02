@@ -3,6 +3,8 @@ import "./globals.css";
 import Link from "next/link";
 import { Droplet, Heart, Search, User, LogIn, ShieldAlert } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Gopalganj Blood Bank | Give Blood, Save Lives",
   description: "Connect with blood donors across Gopalganj. A community-driven blood donation platform.",
