@@ -266,3 +266,20 @@ export async function logoutUser() {
   cookieStore.delete("auth_role");
   redirect("/login");
 }
+
+export async function deleteBloodRequest(formData: FormData) {
+  const requestId = formData.get("requestId") as string;
+  if (!requestId) throw new Error("Request ID is required");
+
+  const cookieStore = await cookies();
+  const role = cookieStore.get("auth_role")?.value;
+  if (role !== "ADMIN") throw new Error("Unauthorized: Only admins can delete requests");
+
+  const { prisma } = await import("@/lib/prisma");
+  await prisma.bloodRequest.delete({
+    where: { id: requestId }
+  });
+
+  redirect("/blood-requests");
+}
+
