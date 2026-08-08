@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Search, Activity, ShieldCheck, HeartPulse, Droplet, Users, Building, CalendarClock } from "lucide-react";
+import { ArrowRight, Activity, HeartPulse, Droplet, Users, Building, CalendarClock, Phone } from "lucide-react";
 import { getLiveStats, getRecentRequests } from "./actions";
 
 export default async function Home() {
@@ -11,33 +11,33 @@ export default async function Home() {
       {/* Hero Section */}
       <section style={{ 
         background: 'linear-gradient(135deg, rgba(211,47,47,0.05) 0%, rgba(211,47,47,0.15) 100%)',
-        padding: '6rem 0',
+        padding: '5rem 0',
         position: 'relative',
         overflow: 'hidden'
       }}>
         <div className="container flex flex-col items-center justify-center text-center animate-fade-in" style={{ position: 'relative', zIndex: 10 }}>
-          <div style={{ display: 'inline-block', padding: '0.5rem 1rem', background: 'rgba(211,47,47,0.1)', color: 'var(--primary-dark)', borderRadius: 'var(--radius-full)', fontWeight: 600, fontSize: '0.875rem', marginBottom: '1.5rem' }}>
-            <Droplet size={16} style={{ display: 'inline', verticalAlign: 'text-bottom', marginRight: '4px' }}/>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '0.5rem 1rem', background: 'rgba(211,47,47,0.1)', color: 'var(--primary-dark)', borderRadius: 'var(--radius-full)', fontWeight: 600, fontSize: '0.875rem', marginBottom: '1.5rem' }}>
+            <Droplet size={16} />
             Welcome to DonateBloodBD
           </div>
           <h1 className="mb-4" style={{ maxWidth: '800px' }}>
             Give the Gift of Life, <br/><span className="text-primary">Donate Blood Today.</span>
           </h1>
           <p className="text-muted mb-8" style={{ fontSize: '1.125rem', maxWidth: '600px' }}>
-            Join the largest community of blood donors. Your single donation can save up to three lives. Register today and make a real difference.
+            Join the largest community of blood donors. Your single donation can save up to three lives. Register today or request blood in emergencies.
           </p>
           
           <div className="flex flex-wrap justify-center gap-4">
-            <Link href="/search" className="btn btn-primary" style={{ padding: '0.875rem 2rem', fontSize: '1.05rem' }}>
-              <Search size={20} /> Find Blood
+            <Link href="/blood-requests" className="btn btn-primary" style={{ padding: '0.875rem 2rem', fontSize: '1.05rem' }}>
+              <Activity size={20} /> View Blood Requests
             </Link>
             <Link href="/request-blood" className="btn btn-outline" style={{ padding: '0.875rem 2rem', fontSize: '1.05rem', background: 'white' }}>
-              <Activity size={20} /> Request Blood
+              <HeartPulse size={20} /> Post Blood Request
             </Link>
           </div>
-          <div className="mt-4">
-            <Link href="/register" className="text-primary font-medium hover:underline flex items-center gap-1 justify-center">
-              Or Register as a Donor <ArrowRight size={16} />
+          <div className="mt-6">
+            <Link href="/login" className="text-primary font-semibold hover:underline flex items-center gap-1 justify-center">
+              Register or Sign In as a Donor <ArrowRight size={16} />
             </Link>
           </div>
         </div>
@@ -79,8 +79,8 @@ export default async function Home() {
             </h2>
             <p className="text-muted mt-2">People who are currently in urgent need of blood.</p>
           </div>
-          <Link href="/request-blood" className="text-primary font-medium hover:underline hidden sm:flex items-center gap-1">
-            Post a Request <ArrowRight size={16} />
+          <Link href="/blood-requests" className="text-primary font-semibold hover:underline flex items-center gap-1">
+            See All Requests <ArrowRight size={16} />
           </Link>
         </div>
 
@@ -89,40 +89,39 @@ export default async function Home() {
             <Droplet size={48} className="mx-auto mb-4 text-gray-300" />
             <h3 className="text-xl font-semibold mb-2">No active requests</h3>
             <p className="text-muted mb-4">Currently there are no urgent blood requests.</p>
-            <Link href="/request-blood" className="btn btn-outline bg-white">
+            <Link href="/request-blood" className="btn btn-primary">
               Post a Request
             </Link>
           </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {recentRequests.map(req => (
-              <div key={req.id} className="glass-card relative overflow-hidden">
+              <div key={req.id} className="glass-card relative overflow-hidden flex flex-col justify-between" style={{ minHeight: '220px' }}>
                 {req.urgency === 'URGENT' && (
                   <div className="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
-                    URGENT
+                    🚨 URGENT
                   </div>
                 )}
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center text-primary font-bold text-2xl">
-                    {req.bloodGroup}
+                <div>
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-14 h-14 rounded-full bg-red-100 flex items-center justify-center text-primary font-bold text-xl shrink-0">
+                      {req.bloodGroup}
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-lg leading-tight">{req.patientName}</h3>
+                      <p className="text-xs text-muted mt-1">{new Date(req.createdAt).toLocaleDateString()}</p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-lg">{req.patientName}</h3>
-                    <p className="text-sm text-muted">{new Date(req.createdAt).toLocaleDateString()}</p>
+                  <div className="space-y-2 mb-4 text-sm text-gray-600">
+                    <p className="flex items-start gap-2">
+                      <Building size={16} className="text-muted shrink-0 mt-0.5" />
+                      <span>{req.location}</span>
+                    </p>
                   </div>
                 </div>
-                <div className="space-y-2 mb-4">
-                  <p className="text-sm flex items-start gap-2">
-                    <Building size={16} className="text-muted shrink-0 mt-0.5" />
-                    <span>{req.location}</span>
-                  </p>
-                  <p className="text-sm flex items-start gap-2">
-                    <HeartPulse size={16} className="text-muted shrink-0 mt-0.5" />
-                    <span>Contact: {req.contactPhone}</span>
-                  </p>
-                </div>
-                <a href={`tel:${req.contactPhone}`} className="btn btn-outline w-full justify-center">
-                  Call Now
+                
+                <a href={`tel:${req.contactPhone}`} className="btn btn-outline w-full justify-center gap-2 mt-2">
+                  <Phone size={16} /> Call {req.contactPhone}
                 </a>
               </div>
             ))}
@@ -177,12 +176,12 @@ export default async function Home() {
           <p className="text-muted mb-8" style={{ maxWidth: '600px', margin: '0 auto 2rem auto' }}>
             There is a constant need for regular blood supply because blood can be stored for only a limited time before use.
           </p>
-          <div className="flex justify-center gap-4">
-            <Link href="/register" className="btn btn-primary" style={{ padding: '0.875rem 2rem' }}>
+          <div className="flex justify-center gap-4 flex-wrap">
+            <Link href="/login" className="btn btn-primary" style={{ padding: '0.875rem 2rem' }}>
               Join as a Donor
             </Link>
-            <Link href="/login" className="btn btn-outline bg-white" style={{ padding: '0.875rem 2rem' }}>
-              Donor Login
+            <Link href="/request-blood" className="btn btn-outline bg-white" style={{ padding: '0.875rem 2rem' }}>
+              Request Blood
             </Link>
           </div>
         </div>
@@ -190,3 +189,4 @@ export default async function Home() {
     </div>
   );
 }
+
