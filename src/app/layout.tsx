@@ -7,8 +7,8 @@ import { Droplet } from "lucide-react";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "DonateBloodBD | Give Blood, Save Lives",
-  description: "Connect with blood donors. A community-driven blood donation platform.",
+  title: "Blood Donor GSTU | Give Blood, Save Lives",
+  description: "Connect with blood donors at GSTU. A community-driven blood donation platform.",
 };
 
 export default async function RootLayout({
@@ -42,7 +42,7 @@ export default async function RootLayout({
           <div className="container">
             <Droplet color="var(--primary-light)" size={28} style={{ margin: "0 auto 0.75rem auto" }} />
             <h3 style={{ color: "var(--surface)", marginBottom: "0.5rem", fontSize: "1.1rem" }}>
-              DonateBloodBD
+              Blood Donor GSTU
             </h3>
             <p style={{ color: "#cbd5e1", marginBottom: "1.5rem", fontSize: "0.9rem" }}>
               Every drop counts. Join our mission to save lives.
@@ -53,7 +53,7 @@ export default async function RootLayout({
               fontSize: "0.8rem",
               color: "#94a3b8"
             }}>
-              &copy; {new Date().getFullYear()} DonateBloodBD. All rights reserved.
+              &copy; {new Date().getFullYear()} Blood Donor GSTU. All rights reserved.
             </div>
           </div>
         </footer>

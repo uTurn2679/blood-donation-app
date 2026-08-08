@@ -91,7 +91,7 @@ export default function LoginPage() {
             <Droplet size={28} color="white" />
           </div>
           <h1 style={{ fontSize: "1.6rem", fontWeight: 800, color: "#0d1117", marginBottom: "0.25rem" }}>
-            DonateBloodBD
+            Blood Donor GSTU
           </h1>
           <p style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>
             {tab === "signin" && "Sign in to continue your life-saving mission"}

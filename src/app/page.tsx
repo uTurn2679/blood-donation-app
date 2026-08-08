@@ -18,7 +18,7 @@ export default async function Home() {
         <div className="container flex flex-col items-center justify-center text-center animate-fade-in" style={{ position: 'relative', zIndex: 10 }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '0.5rem 1rem', background: 'rgba(211,47,47,0.1)', color: 'var(--primary-dark)', borderRadius: 'var(--radius-full)', fontWeight: 600, fontSize: '0.875rem', marginBottom: '1.5rem' }}>
             <Droplet size={16} />
-            Welcome to DonateBloodBD
+            Welcome to Blood Donor GSTU
           </div>
           <h1 className="mb-4" style={{ maxWidth: '800px' }}>
             Give the Gift of Life, <br/><span className="text-primary">Donate Blood Today.</span>

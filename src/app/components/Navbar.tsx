@@ -25,7 +25,7 @@ export default function Navbar({ isLoggedIn, isAdmin }: NavbarProps) {
           <Link href="/" onClick={close} style={{ display: "flex", alignItems: "center", gap: "0.5rem", textDecoration: "none" }}>
             <Droplet color="var(--primary)" size={26} />
             <span style={{ fontSize: "1.15rem", fontWeight: 700, color: "var(--text-main)" }}>
-              DonateBloodBD
+              Blood Donor GSTU
             </span>
           </Link>
 
