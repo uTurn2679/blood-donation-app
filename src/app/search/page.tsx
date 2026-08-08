@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { MapPin, Phone, Droplet, User, Search } from "lucide-react";
+import { DEPARTMENTS, SESSIONS } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
 
@@ -57,12 +58,22 @@ export default async function SearchPage({
           
           <div className="input-group" style={{ marginBottom: 0 }}>
             <label className="input-label">Department</label>
-            <input type="text" name="dept" className="input-field" placeholder="e.g. CSE, AGR" defaultValue={department} />
+            <select name="dept" className="input-field" defaultValue={department}>
+              <option value="">Any</option>
+              {DEPARTMENTS.map(dept => (
+                <option key={dept} value={dept}>{dept}</option>
+              ))}
+            </select>
           </div>
 
           <div className="input-group" style={{ marginBottom: 0 }}>
             <label className="input-label">Session</label>
-            <input type="text" name="session" className="input-field" placeholder="e.g. 21-22" defaultValue={sessionVal} />
+            <select name="session" className="input-field" defaultValue={sessionVal}>
+              <option value="">Any</option>
+              {SESSIONS.map(session => (
+                <option key={session} value={session}>{session}</option>
+              ))}
+            </select>
           </div>
 
           <button type="submit" className="btn btn-primary" style={{ height: '46px', width: '100%' }}>

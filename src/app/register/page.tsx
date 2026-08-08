@@ -1,5 +1,6 @@
 import { registerDonor } from "../actions";
 import { UserPlus } from "lucide-react";
+import { DEPARTMENTS, SESSIONS } from "@/lib/constants";
 
 export default function RegisterPage() {
   return (
@@ -41,14 +42,24 @@ export default function RegisterPage() {
 
             <div className="input-group">
               <label className="input-label" htmlFor="department">Department (Optional)</label>
-              <input type="text" id="department" name="department" className="input-field" placeholder="e.g. CSE" />
+              <select id="department" name="department" className="input-field">
+                <option value="">Select Department</option>
+                {DEPARTMENTS.map(dept => (
+                  <option key={dept} value={dept}>{dept}</option>
+                ))}
+              </select>
             </div>
           </div>
 
           <div className="grid md:grid-cols-2 gap-4">
             <div className="input-group">
               <label className="input-label" htmlFor="session">Session (Optional)</label>
-              <input type="text" id="session" name="session" className="input-field" placeholder="e.g. 2021-2022" />
+              <select id="session" name="session" className="input-field">
+                <option value="">Select Session</option>
+                {SESSIONS.map(session => (
+                  <option key={session} value={session}>{session}</option>
+                ))}
+              </select>
             </div>
 
             <div className="input-group">
