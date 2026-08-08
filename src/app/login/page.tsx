@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { loginUser } from "@/app/actions";
 import { LogIn, AlertCircle, ShieldAlert, Droplet, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
@@ -8,31 +8,42 @@ import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 
 function LoginForm() {
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const searchParams = useSearchParams();
   const reason = searchParams.get("reason");
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true);
     setError(null);
     const formData = new FormData(e.currentTarget);
-    try {
-      await loginUser(formData);
-    } catch (err: any) {
-      setError(err.message || "Failed to log in. Please check your credentials.");
-      setLoading(false);
-    }
+
+    startTransition(async () => {
+      try {
+        await loginUser(formData);
+      } catch (err: any) {
+        // Rethrow NEXT_REDIRECT — Next.js uses this internally for navigation
+        if (err?.digest?.startsWith("NEXT_REDIRECT")) {
+          throw err;
+        }
+        setError(err.message || "Invalid phone number or password.");
+      }
+    });
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-12 px-4" style={{ background: 'linear-gradient(135deg, #fff5f5 0%, #fff 50%, #fff5f5 100%)' }}>
+    <div
+      className="min-h-screen flex items-center justify-center py-12 px-4"
+      style={{ background: "linear-gradient(135deg, #fff5f5 0%, #fff 50%, #fff5f5 100%)" }}
+    >
       <div className="w-full max-w-md animate-fade-in">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-red-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg" style={{ boxShadow: '0 8px 24px rgba(211,47,47,0.35)' }}>
+          <div
+            className="w-16 h-16 bg-red-500 rounded-2xl flex items-center justify-center mx-auto mb-4"
+            style={{ boxShadow: "0 8px 24px rgba(211,47,47,0.35)" }}
+          >
             <Droplet size={32} color="white" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900">Welcome Back</h1>
@@ -45,7 +56,9 @@ function LoginForm() {
             <ShieldAlert className="text-amber-600 shrink-0 mt-0.5" size={20} />
             <div>
               <p className="text-amber-800 font-semibold text-sm">Admin Access Required</p>
-              <p className="text-amber-700 text-xs mt-1">The page you tried to access is restricted to administrators only. Please sign in with your admin account.</p>
+              <p className="text-amber-700 text-xs mt-1">
+                This page is restricted to administrators only.
+              </p>
             </div>
           </div>
         )}
@@ -60,7 +73,10 @@ function LoginForm() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5" htmlFor="phone">
+              <label
+                className="block text-sm font-semibold text-gray-700 mb-1.5"
+                htmlFor="phone"
+              >
                 Phone Number
               </label>
               <input
@@ -75,7 +91,10 @@ function LoginForm() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5" htmlFor="password">
+              <label
+                className="block text-sm font-semibold text-gray-700 mb-1.5"
+                htmlFor="password"
+              >
                 Password
               </label>
               <div className="relative">
@@ -101,9 +120,9 @@ function LoginForm() {
             <button
               type="submit"
               className="btn btn-primary w-full justify-center text-base py-3 mt-2"
-              disabled={loading}
+              disabled={isPending}
             >
-              {loading ? (
+              {isPending ? (
                 <span className="flex items-center gap-2">
                   <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   Signing in...
@@ -136,9 +155,14 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="w-8 h-8 border-4 border-red-200 border-t-red-500 rounded-full animate-spin" />
+        </div>
+      }
+    >
       <LoginForm />
     </Suspense>
   );
 }
-
