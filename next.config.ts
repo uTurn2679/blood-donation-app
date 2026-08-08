@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  serverExternalPackages: ['@prisma/client', 'bcrypt'],
+  serverExternalPackages: ['@prisma/client', 'bcrypt', 'pg'],
 };
 
 export default nextConfig;
