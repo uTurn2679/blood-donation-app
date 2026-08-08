@@ -47,30 +47,43 @@ export default function Navbar({ isLoggedIn, isAdmin }: NavbarProps) {
                 <ShieldAlert size={17} /> Admin
               </Link>
             )}
+            
             {isLoggedIn ? (
-              <>
-                <Link href="/dashboard" className="nav-link primary-link">
+              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginLeft: "0.5rem" }}>
+                <Link href="/dashboard" className="nav-link primary-link" style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", fontWeight: 600, color: "var(--primary)" }}>
                   <LayoutDashboard size={17} /> Dashboard
                 </Link>
                 <form action={logoutUser} style={{ display: "inline-flex" }}>
                   <button
                     type="submit"
-                    className="btn btn-outline"
-                    style={{ padding: "0.45rem 0.9rem", fontSize: "0.85rem", borderColor: "#fca5a5", color: "#dc2626" }}
+                    className="btn"
+                    style={{
+                      padding: "0.45rem 0.85rem",
+                      fontSize: "0.85rem",
+                      background: "#fee2e2",
+                      color: "#dc2626",
+                      border: "1px solid #fecaca",
+                      borderRadius: "8px",
+                      cursor: "pointer",
+                      fontWeight: 600,
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "0.35rem"
+                    }}
                   >
-                    <LogOut size={16} /> Sign Out
+                    <LogOut size={15} /> Sign Out
                   </button>
                 </form>
-              </>
+              </div>
             ) : (
-              <>
-                <Link href="/login" className="nav-link">
+              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginLeft: "0.5rem" }}>
+                <Link href="/login" className="nav-link" style={{ fontWeight: 600 }}>
                   <LogIn size={17} /> Sign In
                 </Link>
-                <Link href="/login" className="btn btn-primary" style={{ padding: "0.55rem 1.1rem", fontSize: "0.9rem" }}>
-                  <User size={17} /> Register
+                <Link href="/login" className="btn btn-primary" style={{ padding: "0.5rem 1rem", fontSize: "0.875rem", borderRadius: "8px" }}>
+                  <User size={16} /> Sign Up
                 </Link>
-              </>
+              </div>
             )}
           </div>
 
@@ -102,31 +115,34 @@ export default function Navbar({ isLoggedIn, isAdmin }: NavbarProps) {
               <ShieldAlert size={20} /> Admin
             </Link>
           )}
-          {isLoggedIn ? (
-            <>
-              <Link href="/dashboard" className="mobile-menu-item" onClick={close} style={{ color: "var(--primary)" }}>
-                <LayoutDashboard size={20} /> Dashboard
-              </Link>
-              <form action={logoutUser}>
-                <button
-                  type="submit"
-                  className="mobile-menu-item"
-                  style={{ width: "100%", background: "none", border: "none", cursor: "pointer", color: "#ef4444", textAlign: "left" }}
-                >
-                  <LogOut size={20} /> Sign Out
-                </button>
-              </form>
-            </>
-          ) : (
-            <>
-              <Link href="/login" className="mobile-menu-item" onClick={close}>
-                <LogIn size={20} /> Sign In
-              </Link>
-              <Link href="/login" className="mobile-menu-item primary" onClick={close}>
-                <User size={20} /> Register as Donor
-              </Link>
-            </>
-          )}
+          
+          <div style={{ borderTop: "1px solid #f1f5f9", marginTop: "0.5rem", paddingTop: "0.5rem" }}>
+            {isLoggedIn ? (
+              <>
+                <Link href="/dashboard" className="mobile-menu-item" onClick={close} style={{ color: "var(--primary)", fontWeight: 600 }}>
+                  <LayoutDashboard size={20} /> Dashboard
+                </Link>
+                <form action={logoutUser}>
+                  <button
+                    type="submit"
+                    className="mobile-menu-item"
+                    style={{ width: "100%", background: "#fee2e2", border: "1px solid #fecaca", borderRadius: "8px", cursor: "pointer", color: "#dc2626", textAlign: "left", fontWeight: 600, marginTop: "0.25rem" }}
+                  >
+                    <LogOut size={20} /> Sign Out
+                  </button>
+                </form>
+              </>
+            ) : (
+              <>
+                <Link href="/login" className="mobile-menu-item" onClick={close}>
+                  <LogIn size={20} /> Sign In
+                </Link>
+                <Link href="/login" className="mobile-menu-item primary" onClick={close}>
+                  <User size={20} /> Sign Up / Register
+                </Link>
+              </>
+            )}
+          </div>
         </div>
       </nav>
 
