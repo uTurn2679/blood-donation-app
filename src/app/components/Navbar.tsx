@@ -30,34 +30,34 @@ export default function Navbar({ isLoggedIn, isAdmin }: NavbarProps) {
           </Link>
 
           {/* Desktop menu */}
-          <div style={{ display: "flex", alignItems: "center", gap: "1.5rem" }} className="hidden md:flex">
+          <div className="desktop-nav">
             {isAdmin && (
-              <Link href="/search" className="nav-link" style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+              <Link href="/search" className="nav-link">
                 <Search size={17} /> Find Donors
               </Link>
             )}
-            <Link href="/blood-requests" className="nav-link" style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+            <Link href="/blood-requests" className="nav-link">
               <Heart size={17} /> Blood Requests
             </Link>
-            <Link href="/request-blood" className="nav-link" style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+            <Link href="/request-blood" className="nav-link">
               <Activity size={17} /> Request Blood
             </Link>
             {isAdmin && (
-              <Link href="/admin" className="nav-link" style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+              <Link href="/admin" className="nav-link">
                 <ShieldAlert size={17} /> Admin
               </Link>
             )}
             {isLoggedIn ? (
-              <Link href="/dashboard" className="nav-link" style={{ display: "flex", alignItems: "center", gap: "0.4rem", color: "var(--primary)", fontWeight: 600 }}>
+              <Link href="/dashboard" className="nav-link primary-link">
                 <LayoutDashboard size={17} /> Dashboard
               </Link>
             ) : (
-              <Link href="/login" className="nav-link" style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+              <Link href="/login" className="nav-link">
                 <LogIn size={17} /> Sign In
               </Link>
             )}
             {!isLoggedIn && (
-              <Link href="/register" className="btn btn-primary" style={{ padding: "0.55rem 1.1rem", fontSize: "0.9rem" }}>
+              <Link href="/login" className="btn btn-primary" style={{ padding: "0.55rem 1.1rem", fontSize: "0.9rem" }}>
                 <User size={17} /> Register
               </Link>
             )}
@@ -68,9 +68,8 @@ export default function Navbar({ isLoggedIn, isAdmin }: NavbarProps) {
             className="hamburger-btn"
             onClick={() => setIsOpen(!isOpen)}
             aria-label="Toggle menu"
-            style={{ display: "none" }}
           >
-            {isOpen ? <X size={22} /> : <Menu size={22} />}
+            {isOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
 
@@ -112,7 +111,7 @@ export default function Navbar({ isLoggedIn, isAdmin }: NavbarProps) {
               <Link href="/login" className="mobile-menu-item" onClick={close}>
                 <LogIn size={20} /> Sign In
               </Link>
-              <Link href="/register" className="mobile-menu-item primary" onClick={close}>
+              <Link href="/login" className="mobile-menu-item primary" onClick={close}>
                 <User size={20} /> Register as Donor
               </Link>
             </>
@@ -120,12 +119,6 @@ export default function Navbar({ isLoggedIn, isAdmin }: NavbarProps) {
         </div>
       </nav>
 
-      {/* CSS for hamburger visibility on mobile */}
-      <style>{`
-        @media (max-width: 767px) {
-          .hamburger-btn { display: flex !important; }
-        }
-      `}</style>
     </>
   );
 }
