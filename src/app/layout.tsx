@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Link from "next/link";
-import { Droplet, Heart, Search, User, LogIn, ShieldAlert, LayoutDashboard, Activity } from "lucide-react";
 import { cookies } from "next/headers";
+import Navbar from "./components/Navbar";
+import { Droplet } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -23,70 +23,36 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </head>
       <body>
-        <nav className="navbar">
-          <div className="container flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-2">
-              <Droplet color="var(--primary)" size={28} />
-              <span style={{ fontSize: "1.25rem", fontWeight: 700, color: "var(--text-main)" }}>
-                DonateBloodBD
-              </span>
-            </Link>
-            
-            <div className="flex gap-6 items-center hidden md:flex">
-              {/* Show donor search only to admins */}
-              {isAdmin && (
-                <Link href="/search" className="nav-link flex items-center gap-2">
-                  <Search size={18} /> Find Donors
-                </Link>
-              )}
-              
-              {/* Blood requests — visible to everyone */}
-              <Link href="/blood-requests" className="nav-link flex items-center gap-2">
-                <Heart size={18} /> Blood Requests
-              </Link>
-              
-              {/* Request blood — visible to everyone */}
-              <Link href="/request-blood" className="nav-link flex items-center gap-2">
-                <Activity size={18} /> Request Blood
-              </Link>
-              
-              {/* Admin link — only for admins */}
-              {isAdmin && (
-                <Link href="/admin" className="nav-link flex items-center gap-2">
-                  <ShieldAlert size={18} /> Admin
-                </Link>
-              )}
-              
-              {isLoggedIn ? (
-                <Link href="/dashboard" className="nav-link flex items-center gap-2 text-primary font-medium">
-                  <LayoutDashboard size={18} /> Dashboard
-                </Link>
-              ) : (
-                <Link href="/login" className="nav-link flex items-center gap-2">
-                  <LogIn size={18} /> Sign In
-                </Link>
-              )}
-              
-              {!isLoggedIn && (
-                <Link href="/register" className="btn btn-primary">
-                  <User size={18} /> Register as Donor
-                </Link>
-              )}
-            </div>
-          </div>
-        </nav>
-        
-        <main style={{ minHeight: 'calc(100vh - 72px)' }}>
+        <Navbar isLoggedIn={isLoggedIn} isAdmin={isAdmin} />
+
+        <main style={{ minHeight: "calc(100vh - 56px)" }}>
           {children}
         </main>
-        
-        <footer style={{ backgroundColor: 'var(--secondary)', color: 'var(--text-light)', padding: '3rem 0', textAlign: 'center' }}>
+
+        <footer style={{
+          backgroundColor: "var(--secondary)",
+          color: "var(--text-light)",
+          padding: "2.5rem 0",
+          textAlign: "center"
+        }}>
           <div className="container">
-            <Droplet color="var(--primary-light)" size={32} style={{ margin: '0 auto 1rem auto' }} />
-            <h3 style={{ color: 'var(--surface)', marginBottom: '0.5rem' }}>DonateBloodBD</h3>
-            <p style={{ color: '#cbd5e1', marginBottom: '2rem' }}>Every drop counts. Join our mission to save lives.</p>
-            <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1.5rem', fontSize: '0.875rem', color: '#94a3b8' }}>
+            <Droplet color="var(--primary-light)" size={28} style={{ margin: "0 auto 0.75rem auto" }} />
+            <h3 style={{ color: "var(--surface)", marginBottom: "0.5rem", fontSize: "1.1rem" }}>
+              DonateBloodBD
+            </h3>
+            <p style={{ color: "#cbd5e1", marginBottom: "1.5rem", fontSize: "0.9rem" }}>
+              Every drop counts. Join our mission to save lives.
+            </p>
+            <div style={{
+              borderTop: "1px solid rgba(255,255,255,0.1)",
+              paddingTop: "1.25rem",
+              fontSize: "0.8rem",
+              color: "#94a3b8"
+            }}>
               &copy; {new Date().getFullYear()} DonateBloodBD. All rights reserved.
             </div>
           </div>
