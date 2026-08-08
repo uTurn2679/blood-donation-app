@@ -212,7 +212,7 @@ export default function LoginPage() {
             {tab === "signup" && (
               <form onSubmit={handleSignUp}>
                 {/* Name + Phone */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", marginBottom: "1rem" }}>
+                <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: "0.75rem", marginBottom: "1rem" }}>
                   <div>
                     <label style={labelStyle}>Full Name *</label>
                     <input name="name" type="text" required placeholder="Your name"
@@ -230,7 +230,7 @@ export default function LoginPage() {
                 </div>
 
                 {/* Blood Group + Password */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", marginBottom: "1rem" }}>
+                <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: "0.75rem", marginBottom: "1rem" }}>
                   <div>
                     <label style={labelStyle}>Blood Group *</label>
                     <select name="bloodGroup" required defaultValue="" style={inputStyle}
@@ -260,7 +260,7 @@ export default function LoginPage() {
                 </div>
 
                 {/* Department + Session */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", marginBottom: "1.25rem" }}>
+                <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: "0.75rem", marginBottom: "1.25rem" }}>
                   <div>
                     <label style={labelStyle}>Department <span style={{ color: "#9ca3af", fontWeight: 400 }}>(optional)</span></label>
                     <select name="department" defaultValue="" style={inputStyle}
