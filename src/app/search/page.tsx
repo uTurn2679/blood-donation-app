@@ -1,7 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { MapPin, Phone, Droplet, User, Search, CheckCircle2, XCircle } from "lucide-react";
+import { MapPin, Phone, User, Search, CheckCircle2, XCircle, ShieldAlert } from "lucide-react";
 import { DEPARTMENTS, SESSIONS } from "@/lib/constants";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -10,6 +12,13 @@ export default async function SearchPage({
 }: {
   searchParams: Promise<{ bg?: string, dept?: string, session?: string, availableOnly?: string }>;
 }) {
+  // Admin-only guard
+  const cookieStore = await cookies();
+  const role = cookieStore.get("auth_role")?.value;
+  if (role !== "ADMIN") {
+    redirect("/login?reason=admin_only");
+  }
+
   const { bg, dept, session, availableOnly } = await searchParams;
 
   const bloodGroup = bg || "";
@@ -48,8 +57,11 @@ export default async function SearchPage({
   return (
     <div className="container py-16 animate-fade-in">
       <div className="text-center mb-8">
+        <div className="inline-flex items-center gap-2 bg-red-50 border border-red-200 text-primary px-4 py-1.5 rounded-full text-sm font-semibold mb-4">
+          <ShieldAlert size={16} /> Admin Only — Donor Database
+        </div>
         <h1>Find Blood Donors</h1>
-        <p className="text-muted">Search for available blood donors in our network.</p>
+        <p className="text-muted">Search the full donor database. This page is visible to admins only.</p>
       </div>
 
       <div className="glass-card mb-12" style={{ maxWidth: '900px', margin: '0 auto 3rem auto' }}>

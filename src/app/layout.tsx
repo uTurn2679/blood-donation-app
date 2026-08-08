@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Link from "next/link";
-import { Droplet, Heart, Search, User, LogIn, ShieldAlert, LayoutDashboard } from "lucide-react";
+import { Droplet, Heart, Search, User, LogIn, ShieldAlert, LayoutDashboard, Activity } from "lucide-react";
 import { cookies } from "next/headers";
 
 export const dynamic = "force-dynamic";
@@ -18,6 +18,8 @@ export default async function RootLayout({
 }>) {
   const cookieStore = await cookies();
   const isLoggedIn = !!cookieStore.get("auth_session");
+  const role = cookieStore.get("auth_role")?.value;
+  const isAdmin = role === "ADMIN";
 
   return (
     <html lang="en">
@@ -32,15 +34,29 @@ export default async function RootLayout({
             </Link>
             
             <div className="flex gap-6 items-center hidden md:flex">
-              <Link href="/search" className="nav-link flex items-center gap-2">
-                <Search size={18} /> Find Blood
+              {/* Show donor search only to admins */}
+              {isAdmin && (
+                <Link href="/search" className="nav-link flex items-center gap-2">
+                  <Search size={18} /> Find Donors
+                </Link>
+              )}
+              
+              {/* Blood requests — visible to everyone */}
+              <Link href="/blood-requests" className="nav-link flex items-center gap-2">
+                <Heart size={18} /> Blood Requests
               </Link>
+              
+              {/* Request blood — visible to everyone */}
               <Link href="/request-blood" className="nav-link flex items-center gap-2">
-                <Heart size={18} /> Request Blood
+                <Activity size={18} /> Request Blood
               </Link>
-              <Link href="/admin" className="nav-link flex items-center gap-2">
-                <ShieldAlert size={18} /> Admin
-              </Link>
+              
+              {/* Admin link — only for admins */}
+              {isAdmin && (
+                <Link href="/admin" className="nav-link flex items-center gap-2">
+                  <ShieldAlert size={18} /> Admin
+                </Link>
+              )}
               
               {isLoggedIn ? (
                 <Link href="/dashboard" className="nav-link flex items-center gap-2 text-primary font-medium">
@@ -52,9 +68,11 @@ export default async function RootLayout({
                 </Link>
               )}
               
-              <Link href="/register" className="btn btn-primary">
-                <User size={18} /> Register as Donor
-              </Link>
+              {!isLoggedIn && (
+                <Link href="/register" className="btn btn-primary">
+                  <User size={18} /> Register as Donor
+                </Link>
+              )}
             </div>
           </div>
         </nav>

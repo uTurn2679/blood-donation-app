@@ -31,7 +31,7 @@ export async function registerDonor(formData: FormData) {
   }
 
   // Create User and DonorProfile
-  await prisma.user.create({
+  const newUser = await prisma.user.create({
     data: {
       name,
       phone,
@@ -48,7 +48,22 @@ export async function registerDonor(formData: FormData) {
     },
   });
 
-  redirect("/search?bg=" + encodeURIComponent(bloodGroup));
+  // Auto-login after registration
+  const cookieStore = await cookies();
+  cookieStore.set("auth_session", newUser.id, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 60 * 60 * 24 * 7,
+    path: "/",
+  });
+  cookieStore.set("auth_role", "DONOR", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 60 * 60 * 24 * 7,
+    path: "/",
+  });
+
+  redirect("/dashboard");
 }
 
 export async function submitBloodRequest(formData: FormData) {
@@ -93,7 +108,7 @@ export async function submitBloodRequest(formData: FormData) {
     },
   });
 
-  redirect("/");
+  redirect("/blood-requests");
 }
 
 export async function loginUser(formData: FormData) {
@@ -114,16 +129,28 @@ export async function loginUser(formData: FormData) {
     throw new Error("Invalid phone number or password");
   }
 
-  // Set a simple cookie session (Use NextAuth or JWT in production)
+  // Set session cookie
   const cookieStore = await cookies();
   cookieStore.set("auth_session", user.id, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    maxAge: 60 * 60 * 24 * 7, // 1 week
+    maxAge: 60 * 60 * 24 * 7,
+    path: "/",
+  });
+  // Store role separately for layout/page guards
+  cookieStore.set("auth_role", user.role, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 60 * 60 * 24 * 7,
     path: "/",
   });
 
-  redirect("/");
+  // Redirect based on role
+  if (user.role === "ADMIN") {
+    redirect("/admin");
+  } else {
+    redirect("/dashboard");
+  }
 }
 
 export async function importExcelData(formData: FormData) {
@@ -236,5 +263,6 @@ export async function updateLastDonation(formData: FormData) {
 export async function logoutUser() {
   const cookieStore = await cookies();
   cookieStore.delete("auth_session");
-  redirect("/");
+  cookieStore.delete("auth_role");
+  redirect("/login");
 }

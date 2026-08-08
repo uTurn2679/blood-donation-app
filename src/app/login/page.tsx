@@ -2,86 +2,143 @@
 
 import { useState } from "react";
 import { loginUser } from "@/app/actions";
-import { LogIn, AlertCircle } from "lucide-react";
+import { LogIn, AlertCircle, ShieldAlert, Droplet, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
-export default function LoginPage() {
+function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const searchParams = useSearchParams();
+  const reason = searchParams.get("reason");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-
     const formData = new FormData(e.currentTarget);
     try {
       await loginUser(formData);
-      // The server action handles the redirect on success
     } catch (err: any) {
-      setError(err.message || "Failed to log in.");
+      setError(err.message || "Failed to log in. Please check your credentials.");
       setLoading(false);
     }
   };
 
   return (
-    <div className="container py-16">
-      <div className="text-center mb-8">
-        <h1>Sign In</h1>
-        <p className="text-muted">Welcome back to Gopalganj Blood Bank.</p>
-      </div>
+    <div className="min-h-screen flex items-center justify-center py-12 px-4" style={{ background: 'linear-gradient(135deg, #fff5f5 0%, #fff 50%, #fff5f5 100%)' }}>
+      <div className="w-full max-w-md animate-fade-in">
+        {/* Logo */}
+        <div className="text-center mb-8">
+          <div className="w-16 h-16 bg-red-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg" style={{ boxShadow: '0 8px 24px rgba(211,47,47,0.35)' }}>
+            <Droplet size={32} color="white" />
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900">Welcome Back</h1>
+          <p className="text-muted mt-1 text-sm">Sign in to your donor account</p>
+        </div>
 
-      <div className="glass-card mx-auto" style={{ maxWidth: '450px' }}>
-        {error && (
-          <div style={{ 
-            padding: '1rem', 
-            borderRadius: 'var(--radius)', 
-            marginBottom: '1.5rem',
-            background: '#fee2e2',
-            color: '#991b1b',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem'
-          }}>
-            <AlertCircle size={18} />
-            {error}
+        {/* Admin-only notice */}
+        {reason === "admin_only" && (
+          <div className="mb-5 p-4 rounded-xl border border-amber-200 bg-amber-50 flex gap-3 items-start">
+            <ShieldAlert className="text-amber-600 shrink-0 mt-0.5" size={20} />
+            <div>
+              <p className="text-amber-800 font-semibold text-sm">Admin Access Required</p>
+              <p className="text-amber-700 text-xs mt-1">The page you tried to access is restricted to administrators only. Please sign in with your admin account.</p>
+            </div>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div className="input-group">
-            <label className="input-label" htmlFor="phone">Phone Number</label>
-            <input 
-              type="tel" 
-              id="phone" 
-              name="phone" 
-              className="input-field" 
-              required 
-              placeholder="01XXXXXXXXX"
-            />
-          </div>
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
+          {error && (
+            <div className="mb-5 p-3.5 rounded-xl bg-red-50 border border-red-200 flex items-center gap-3">
+              <AlertCircle size={18} className="text-red-500 shrink-0" />
+              <p className="text-red-700 text-sm font-medium">{error}</p>
+            </div>
+          )}
 
-          <div className="input-group">
-            <label className="input-label" htmlFor="password">Password</label>
-            <input 
-              type="password" 
-              id="password" 
-              name="password" 
-              className="input-field" 
-              required 
-              placeholder="Enter your password"
-            />
-          </div>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5" htmlFor="phone">
+                Phone Number
+              </label>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                className="input-field"
+                required
+                placeholder="01XXXXXXXXX"
+                autoComplete="tel"
+              />
+            </div>
 
-          <button type="submit" className="btn btn-primary mt-4" disabled={loading}>
-            {loading ? 'Signing In...' : <><LogIn size={18} /> Sign In</>}
-          </button>
-        </form>
-        
-        <div className="text-center mt-6 text-sm text-muted">
-          Don't have an account? <Link href="/register" className="text-primary font-medium">Register here</Link>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5" htmlFor="password">
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  id="password"
+                  name="password"
+                  className="input-field pr-12"
+                  required
+                  placeholder="Enter your password"
+                  autoComplete="current-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className="btn btn-primary w-full justify-center text-base py-3 mt-2"
+              disabled={loading}
+            >
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Signing in...
+                </span>
+              ) : (
+                <><LogIn size={18} /> Sign In</>
+              )}
+            </button>
+          </form>
+
+          <div className="mt-6 pt-5 border-t border-gray-100 text-center space-y-3">
+            <p className="text-sm text-muted">
+              Not a donor yet?{" "}
+              <Link href="/register" className="text-primary font-semibold hover:underline">
+                Register here
+              </Link>
+            </p>
+            <p className="text-sm text-muted">
+              Need blood urgently?{" "}
+              <Link href="/request-blood" className="text-primary font-semibold hover:underline">
+                Post a request
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </div>
   );
 }
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
