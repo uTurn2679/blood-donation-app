@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { loginUser } from "@/app/actions";
-import { LogIn, AlertCircle, ShieldAlert, Droplet, Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, ShieldAlert } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
@@ -23,153 +23,304 @@ function LoginForm() {
       try {
         await loginUser(formData);
       } catch (err: any) {
-        // Rethrow NEXT_REDIRECT — Next.js uses this internally for navigation
-        if (err?.digest?.startsWith("NEXT_REDIRECT")) {
-          throw err;
-        }
+        if (err?.digest?.startsWith("NEXT_REDIRECT")) throw err;
         setError(err.message || "Invalid phone number or password.");
       }
     });
   };
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center py-12 px-4"
-      style={{ background: "linear-gradient(135deg, #fff5f5 0%, #fff 50%, #fff5f5 100%)" }}
-    >
-      <div className="w-full max-w-md animate-fade-in">
+    <div style={{
+      minHeight: "100vh",
+      background: "#f0f4f0",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: "2rem 1rem",
+      fontFamily: "'Inter', sans-serif"
+    }}>
+      <div style={{ width: "100%", maxWidth: "480px" }}>
+
         {/* Logo */}
-        <div className="text-center mb-8">
-          <div
-            className="w-16 h-16 bg-red-500 rounded-2xl flex items-center justify-center mx-auto mb-4"
-            style={{ boxShadow: "0 8px 24px rgba(211,47,47,0.35)" }}
-          >
-            <Droplet size={32} color="white" />
+        <div style={{ marginBottom: "2rem" }}>
+          <div style={{
+            width: "48px", height: "48px",
+            background: "#c62828",
+            borderRadius: "50%",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            marginBottom: "1.5rem"
+          }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+              <path d="M12 2C12 2 5 9.5 5 14a7 7 0 0014 0C19 9.5 12 2 12 2z"/>
+            </svg>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Welcome Back</h1>
-          <p className="text-muted mt-1 text-sm">Sign in to your donor account</p>
+
+          <h1 style={{
+            fontSize: "2.4rem",
+            fontWeight: 900,
+            color: "#0d1117",
+            lineHeight: 1.1,
+            letterSpacing: "-0.5px",
+            textTransform: "uppercase",
+            marginBottom: "0.75rem"
+          }}>
+            WELCOME BACK
+          </h1>
+          <p style={{ color: "#4a5568", fontSize: "1rem", lineHeight: 1.5 }}>
+            Sign in to your life-saver portal to continue your mission.
+          </p>
         </div>
 
-        {/* Admin-only notice */}
+        {/* Admin notice */}
         {reason === "admin_only" && (
-          <div className="mb-5 p-4 rounded-xl border border-amber-200 bg-amber-50 flex gap-3 items-start">
-            <ShieldAlert className="text-amber-600 shrink-0 mt-0.5" size={20} />
+          <div style={{
+            background: "#fff8e1",
+            border: "1px solid #f9a825",
+            borderRadius: "12px",
+            padding: "0.875rem 1rem",
+            marginBottom: "1.5rem",
+            display: "flex",
+            gap: "0.625rem",
+            alignItems: "flex-start"
+          }}>
+            <ShieldAlert size={18} style={{ color: "#f9a825", flexShrink: 0, marginTop: "2px" }} />
             <div>
-              <p className="text-amber-800 font-semibold text-sm">Admin Access Required</p>
-              <p className="text-amber-700 text-xs mt-1">
-                This page is restricted to administrators only.
-              </p>
+              <p style={{ fontWeight: 700, fontSize: "0.875rem", color: "#7b5e00" }}>Admin Access Required</p>
+              <p style={{ fontSize: "0.8rem", color: "#9b6f00", marginTop: "2px" }}>This page is restricted to administrators only.</p>
             </div>
           </div>
         )}
 
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
-          {error && (
-            <div className="mb-5 p-3.5 rounded-xl bg-red-50 border border-red-200 flex items-center gap-3">
-              <AlertCircle size={18} className="text-red-500 shrink-0" />
-              <p className="text-red-700 text-sm font-medium">{error}</p>
-            </div>
-          )}
+        {/* Error */}
+        {error && (
+          <div style={{
+            background: "#fff5f5",
+            border: "1px solid #feb2b2",
+            borderRadius: "12px",
+            padding: "0.875rem 1rem",
+            marginBottom: "1.5rem",
+            color: "#c53030",
+            fontSize: "0.875rem",
+            fontWeight: 500
+          }}>
+            ⚠️ {error}
+          </div>
+        )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label
-                className="block text-sm font-semibold text-gray-700 mb-1.5"
-                htmlFor="phone"
-              >
-                Phone Number
-              </label>
+        {/* Form */}
+        <form onSubmit={handleSubmit}>
+
+          {/* Phone field */}
+          <div style={{ marginBottom: "1.25rem" }}>
+            <label style={{
+              display: "block",
+              fontSize: "0.7rem",
+              fontWeight: 700,
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              color: "#718096",
+              marginBottom: "0.5rem"
+            }}>
+              Phone Number
+            </label>
+            <input
+              type="tel"
+              name="phone"
+              id="phone"
+              required
+              placeholder="Enter your phone number"
+              autoComplete="tel"
+              style={{
+                width: "100%",
+                padding: "1rem 1.25rem",
+                border: "1.5px solid #e2e8f0",
+                borderRadius: "12px",
+                fontSize: "1rem",
+                color: "#2d3748",
+                background: "white",
+                outline: "none",
+                boxSizing: "border-box",
+                transition: "border-color 0.2s"
+              }}
+              onFocus={e => e.target.style.borderColor = "#c62828"}
+              onBlur={e => e.target.style.borderColor = "#e2e8f0"}
+            />
+          </div>
+
+          {/* Password field */}
+          <div style={{ marginBottom: "0.75rem" }}>
+            <label style={{
+              display: "block",
+              fontSize: "0.7rem",
+              fontWeight: 700,
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              color: "#718096",
+              marginBottom: "0.5rem"
+            }}>
+              Password Identifier
+            </label>
+            <div style={{ position: "relative" }}>
               <input
-                type="tel"
-                id="phone"
-                name="phone"
-                className="input-field"
+                type={showPassword ? "text" : "password"}
+                name="password"
+                id="password"
                 required
-                placeholder="01XXXXXXXXX"
-                autoComplete="tel"
+                placeholder="••••••••"
+                autoComplete="current-password"
+                style={{
+                  width: "100%",
+                  padding: "1rem 3.5rem 1rem 1.25rem",
+                  border: "1.5px solid #e2e8f0",
+                  borderRadius: "12px",
+                  fontSize: "1rem",
+                  color: "#2d3748",
+                  background: "white",
+                  outline: "none",
+                  boxSizing: "border-box",
+                  transition: "border-color 0.2s"
+                }}
+                onFocus={e => e.target.style.borderColor = "#c62828"}
+                onBlur={e => e.target.style.borderColor = "#e2e8f0"}
               />
-            </div>
-
-            <div>
-              <label
-                className="block text-sm font-semibold text-gray-700 mb-1.5"
-                htmlFor="password"
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: "absolute",
+                  right: "1rem",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  color: "#a0aec0",
+                  padding: 0,
+                  display: "flex"
+                }}
               >
-                Password
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  id="password"
-                  name="password"
-                  className="input-field pr-12"
-                  required
-                  placeholder="Enter your password"
-                  autoComplete="current-password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
             </div>
-
-            <button
-              type="submit"
-              className="btn btn-primary w-full justify-center text-base py-3 mt-2"
-              disabled={isPending}
-            >
-              {isPending ? (
-                <span className="flex items-center gap-2">
-                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Signing in...
-                </span>
-              ) : (
-                <><LogIn size={18} /> Sign In</>
-              )}
-            </button>
-          </form>
-
-          <div className="mt-6 pt-5 border-t border-gray-100 text-center space-y-3">
-            <p className="text-sm text-muted">
-              Not a donor yet?{" "}
-              <Link href="/register" className="text-primary font-semibold hover:underline">
-                Register here
-              </Link>
-            </p>
-            <p className="text-sm text-muted">
-              Need blood urgently?{" "}
-              <Link href="/request-blood" className="text-primary font-semibold hover:underline">
-                Post a request
-              </Link>
-            </p>
           </div>
 
-          {/* Admin quick-fill hint */}
-          <div className="mt-4 p-3 rounded-xl bg-gray-50 border border-gray-200 text-center">
-            <p className="text-xs text-gray-500 font-medium flex items-center justify-center gap-1.5">
-              <ShieldAlert size={13} className="text-gray-400" />
-              Admin login: phone <span className="font-mono font-bold text-gray-700">01700000000</span> · password <span className="font-mono font-bold text-gray-700">admin123</span>
-            </p>
+          {/* Forgot password placeholder */}
+          <div style={{ textAlign: "left", marginBottom: "1.75rem" }}>
+            <span style={{ color: "#c62828", fontSize: "0.9rem", fontWeight: 600, cursor: "default" }}>
+              Forgotten password?
+            </span>
           </div>
+
+          {/* Login button */}
+          <button
+            type="submit"
+            disabled={isPending}
+            style={{
+              width: "100%",
+              padding: "1.1rem",
+              background: isPending ? "#9b8b8b" : "#c62828",
+              color: "white",
+              border: "none",
+              borderRadius: "50px",
+              fontSize: "1rem",
+              fontWeight: 800,
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              cursor: isPending ? "not-allowed" : "pointer",
+              transition: "background 0.2s, transform 0.1s",
+              boxShadow: "0 4px 20px rgba(198, 40, 40, 0.35)"
+            }}
+            onMouseEnter={e => { if (!isPending) (e.target as HTMLElement).style.background = "#b71c1c" }}
+            onMouseLeave={e => { if (!isPending) (e.target as HTMLElement).style.background = "#c62828" }}
+          >
+            {isPending ? (
+              <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}>
+                <span style={{
+                  width: "16px", height: "16px",
+                  border: "2px solid rgba(255,255,255,0.3)",
+                  borderTopColor: "white",
+                  borderRadius: "50%",
+                  animation: "spin 0.7s linear infinite",
+                  display: "inline-block"
+                }} />
+                SIGNING IN...
+              </span>
+            ) : "LOGIN"}
+          </button>
+        </form>
+
+        {/* Divider */}
+        <div style={{
+          display: "flex", alignItems: "center",
+          gap: "1rem", margin: "1.75rem 0"
+        }}>
+          <div style={{ flex: 1, height: "1px", background: "#d1d5db" }} />
+          <span style={{ fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#9ca3af" }}>
+            OR CONTINUE WITH
+          </span>
+          <div style={{ flex: 1, height: "1px", background: "#d1d5db" }} />
         </div>
+
+        {/* Register button */}
+        <Link href="/register" style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "0.75rem",
+          width: "100%",
+          padding: "1rem",
+          background: "white",
+          border: "1.5px solid #e2e8f0",
+          borderRadius: "12px",
+          textDecoration: "none",
+          color: "#2d3748",
+          fontSize: "0.9rem",
+          fontWeight: 800,
+          letterSpacing: "0.05em",
+          textTransform: "uppercase",
+          transition: "border-color 0.2s, background 0.2s",
+          boxSizing: "border-box"
+        }}
+        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "#f7fafc" }}
+        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "white" }}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#c62828">
+            <path d="M12 2C12 2 5 9.5 5 14a7 7 0 0014 0C19 9.5 12 2 12 2z"/>
+          </svg>
+          REGISTER AS DONOR
+        </Link>
+
+        {/* Admin hint */}
+        <div style={{
+          marginTop: "1.5rem",
+          padding: "0.75rem",
+          background: "white",
+          border: "1px dashed #d1d5db",
+          borderRadius: "10px",
+          textAlign: "center"
+        }}>
+          <p style={{ fontSize: "0.75rem", color: "#9ca3af", fontWeight: 500 }}>
+            🛡️ Admin — Phone: <strong style={{ color: "#4a5568" }}>01700000000</strong> · Pass: <strong style={{ color: "#4a5568" }}>admin123</strong>
+          </p>
+        </div>
+
       </div>
+
+      <style>{`
+        @keyframes spin { to { transform: rotate(360deg); } }
+        input::placeholder { color: #a0aec0; }
+      `}</style>
     </div>
   );
 }
 
 export default function LoginPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="w-8 h-8 border-4 border-red-200 border-t-red-500 rounded-full animate-spin" />
-        </div>
-      }
-    >
+    <Suspense fallback={
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f0f4f0" }}>
+        <div style={{ width: "32px", height: "32px", border: "4px solid #f3f3f3", borderTop: "4px solid #c62828", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />
+      </div>
+    }>
       <LoginForm />
     </Suspense>
   );
