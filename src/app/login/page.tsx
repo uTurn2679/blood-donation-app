@@ -147,6 +147,14 @@ function LoginForm() {
               </Link>
             </p>
           </div>
+
+          {/* Admin quick-fill hint */}
+          <div className="mt-4 p-3 rounded-xl bg-gray-50 border border-gray-200 text-center">
+            <p className="text-xs text-gray-500 font-medium flex items-center justify-center gap-1.5">
+              <ShieldAlert size={13} className="text-gray-400" />
+              Admin login: phone <span className="font-mono font-bold text-gray-700">01700000000</span> · password <span className="font-mono font-bold text-gray-700">admin123</span>
+            </p>
+          </div>
         </div>
       </div>
     </div>
