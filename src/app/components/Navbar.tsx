@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import {
-  Droplet, Heart, Search, User, LogIn,
+  Droplet, Heart, Search, User, LogIn, LogOut,
   ShieldAlert, LayoutDashboard, Activity, Menu, X
 } from "lucide-react";
 import { logoutUser } from "@/app/actions";
@@ -48,18 +48,29 @@ export default function Navbar({ isLoggedIn, isAdmin }: NavbarProps) {
               </Link>
             )}
             {isLoggedIn ? (
-              <Link href="/dashboard" className="nav-link primary-link">
-                <LayoutDashboard size={17} /> Dashboard
-              </Link>
+              <>
+                <Link href="/dashboard" className="nav-link primary-link">
+                  <LayoutDashboard size={17} /> Dashboard
+                </Link>
+                <form action={logoutUser} style={{ display: "inline-flex" }}>
+                  <button
+                    type="submit"
+                    className="btn btn-outline"
+                    style={{ padding: "0.45rem 0.9rem", fontSize: "0.85rem", borderColor: "#fca5a5", color: "#dc2626" }}
+                  >
+                    <LogOut size={16} /> Sign Out
+                  </button>
+                </form>
+              </>
             ) : (
-              <Link href="/login" className="nav-link">
-                <LogIn size={17} /> Sign In
-              </Link>
-            )}
-            {!isLoggedIn && (
-              <Link href="/login" className="btn btn-primary" style={{ padding: "0.55rem 1.1rem", fontSize: "0.9rem" }}>
-                <User size={17} /> Register
-              </Link>
+              <>
+                <Link href="/login" className="nav-link">
+                  <LogIn size={17} /> Sign In
+                </Link>
+                <Link href="/login" className="btn btn-primary" style={{ padding: "0.55rem 1.1rem", fontSize: "0.9rem" }}>
+                  <User size={17} /> Register
+                </Link>
+              </>
             )}
           </div>
 
@@ -102,7 +113,7 @@ export default function Navbar({ isLoggedIn, isAdmin }: NavbarProps) {
                   className="mobile-menu-item"
                   style={{ width: "100%", background: "none", border: "none", cursor: "pointer", color: "#ef4444", textAlign: "left" }}
                 >
-                  <LogIn size={20} style={{ transform: "rotate(180deg)" }} /> Sign Out
+                  <LogOut size={20} /> Sign Out
                 </button>
               </form>
             </>
