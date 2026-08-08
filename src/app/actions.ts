@@ -191,3 +191,50 @@ export async function importExcelData(formData: FormData) {
 
   return { success: true, addedCount };
 }
+
+export async function getLiveStats() {
+  const { prisma } = await import("@/lib/prisma");
+  const totalDonors = await prisma.user.count({
+    where: { role: "DONOR" }
+  });
+  const totalRequests = await prisma.bloodRequest.count();
+  
+  return {
+    totalDonors,
+    totalRequests,
+    departmentsCovered: 30 // Hardcoded for now based on BSMRSTU data
+  };
+}
+
+export async function getRecentRequests() {
+  const { prisma } = await import("@/lib/prisma");
+  const requests = await prisma.bloodRequest.findMany({
+    orderBy: { createdAt: 'desc' },
+    take: 5,
+  });
+  return requests;
+}
+
+export async function updateLastDonation(formData: FormData) {
+  const dateString = formData.get("lastDonation") as string;
+  if (!dateString) throw new Error("Date is required");
+
+  const cookieStore = await cookies();
+  const userId = cookieStore.get("auth_session")?.value;
+  if (!userId) throw new Error("Unauthorized");
+
+  const { prisma } = await import("@/lib/prisma");
+  
+  await prisma.donorProfile.update({
+    where: { userId },
+    data: { lastDonation: new Date(dateString) }
+  });
+  
+  redirect("/dashboard");
+}
+
+export async function logoutUser() {
+  const cookieStore = await cookies();
+  cookieStore.delete("auth_session");
+  redirect("/");
+}
