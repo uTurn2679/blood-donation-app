@@ -2,17 +2,14 @@
 
 import { useState, useTransition } from "react";
 import { loginUser } from "@/app/actions";
-import { Eye, EyeOff, ShieldAlert } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 
 function LoginForm() {
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [isPending, startTransition] = useTransition();
-  const searchParams = useSearchParams();
-  const reason = searchParams.get("reason");
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -70,26 +67,6 @@ function LoginForm() {
             Sign in to your life-saver portal to continue your mission.
           </p>
         </div>
-
-        {/* Admin notice */}
-        {reason === "admin_only" && (
-          <div style={{
-            background: "#fff8e1",
-            border: "1px solid #f9a825",
-            borderRadius: "12px",
-            padding: "0.875rem 1rem",
-            marginBottom: "1.5rem",
-            display: "flex",
-            gap: "0.625rem",
-            alignItems: "flex-start"
-          }}>
-            <ShieldAlert size={18} style={{ color: "#f9a825", flexShrink: 0, marginTop: "2px" }} />
-            <div>
-              <p style={{ fontWeight: 700, fontSize: "0.875rem", color: "#7b5e00" }}>Admin Access Required</p>
-              <p style={{ fontSize: "0.8rem", color: "#9b6f00", marginTop: "2px" }}>This page is restricted to administrators only.</p>
-            </div>
-          </div>
-        )}
 
         {/* Error */}
         {error && (
@@ -290,19 +267,7 @@ function LoginForm() {
           REGISTER AS DONOR
         </Link>
 
-        {/* Admin hint */}
-        <div style={{
-          marginTop: "1.5rem",
-          padding: "0.75rem",
-          background: "white",
-          border: "1px dashed #d1d5db",
-          borderRadius: "10px",
-          textAlign: "center"
-        }}>
-          <p style={{ fontSize: "0.75rem", color: "#9ca3af", fontWeight: 500 }}>
-            🛡️ Admin — Phone: <strong style={{ color: "#4a5568" }}>01700000000</strong> · Pass: <strong style={{ color: "#4a5568" }}>admin123</strong>
-          </p>
-        </div>
+
 
       </div>
 

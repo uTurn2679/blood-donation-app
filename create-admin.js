@@ -12,42 +12,44 @@ async function main() {
   const adapter = new PrismaPg(pool);
   const prisma = new PrismaClient({ adapter });
 
-  const adminPhone = '01700000000'; // Admin phone number
-  const adminPassword = 'admin123';  // Admin password
+  // Remove old admin if exists
+  const oldAdmin = await prisma.user.findUnique({ where: { phone: '01700000000' } });
+  if (oldAdmin) {
+    await prisma.user.delete({ where: { phone: '01700000000' } });
+    console.log('Old admin removed.');
+  }
 
-  // Check if admin already exists
-  const existing = await prisma.user.findUnique({ where: { phone: adminPhone } });
+  // Check if habib already exists
+  const existing = await prisma.user.findUnique({ where: { phone: 'habib' } });
 
   if (existing) {
-    // Update existing user to ADMIN
     await prisma.user.update({
-      where: { phone: adminPhone },
-      data: { role: 'ADMIN', password: adminPassword }
+      where: { phone: 'habib' },
+      data: { name: 'Habib', password: '267993', role: 'ADMIN' }
     });
-    console.log(`✅ Existing user (${adminPhone}) updated to ADMIN role.`);
+    console.log('Admin updated.');
   } else {
-    // Create new admin user
     await prisma.user.create({
       data: {
-        name: 'Admin',
-        phone: adminPhone,
-        password: adminPassword,
+        name: 'Habib',
+        phone: 'habib',
+        password: '267993',
         role: 'ADMIN',
       }
     });
-    console.log(`✅ Admin user created!`);
+    console.log('Admin created.');
   }
 
   console.log('');
-  console.log('=== ADMIN LOGIN CREDENTIALS ===');
-  console.log(`Phone   : ${adminPhone}`);
-  console.log(`Password: ${adminPassword}`);
-  console.log('================================');
+  console.log('=== ADMIN CREDENTIALS ===');
+  console.log('Username : habib');
+  console.log('Password : 267993');
+  console.log('=========================');
 
   await pool.end();
 }
 
 main().catch(e => {
-  console.error('❌ Error:', e.message);
+  console.error('Error:', e.message);
   process.exit(1);
 });
