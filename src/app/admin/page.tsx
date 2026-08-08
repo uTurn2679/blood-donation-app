@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { Users, FileSpreadsheet, Activity, Database } from "lucide-react";
+import { Users, FileSpreadsheet, Activity, Database, Search, HeartPulse } from "lucide-react";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -12,52 +12,61 @@ export default async function AdminDashboard() {
   const totalUsers = isBuildTime ? 0 : await prisma.user.count();
 
   return (
-    <div className="p-8">
-      <h2 className="mb-6">Admin Dashboard</h2>
+    <div className="container py-8 md:py-12 animate-fade-in">
+      <div className="mb-8">
+        <h1 className="text-2xl md:text-3xl font-bold mb-2">Admin Dashboard</h1>
+        <p className="text-muted text-sm md:text-base">Overview of your blood donation network and management tools.</p>
+      </div>
       
-      <div className="grid md:grid-cols-3 gap-6 mb-12">
-        <div className="glass-card flex items-center gap-4" style={{ padding: '1.5rem' }}>
-          <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'rgba(211,47,47,0.1)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Users size={28} />
+      {/* Stat cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 mb-10">
+        <div className="glass-card flex items-center gap-4 p-5">
+          <div style={{ width: '52px', height: '52px', borderRadius: '50%', background: 'rgba(211,47,47,0.1)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <Users size={26} />
           </div>
           <div>
-            <p className="text-muted text-sm font-medium mb-1">Total Donors</p>
-            <h3 style={{ margin: 0 }}>{totalDonors}</h3>
+            <p className="text-muted text-xs font-semibold uppercase tracking-wider mb-1">Total Donors</p>
+            <h3 style={{ margin: 0, fontSize: '1.75rem' }}>{totalDonors}</h3>
           </div>
         </div>
 
-        <div className="glass-card flex items-center gap-4" style={{ padding: '1.5rem' }}>
-          <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'rgba(211,47,47,0.1)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Activity size={28} />
+        <div className="glass-card flex items-center gap-4 p-5">
+          <div style={{ width: '52px', height: '52px', borderRadius: '50%', background: 'rgba(211,47,47,0.1)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <Activity size={26} />
           </div>
           <div>
-            <p className="text-muted text-sm font-medium mb-1">Blood Requests</p>
-            <h3 style={{ margin: 0 }}>{totalRequests}</h3>
+            <p className="text-muted text-xs font-semibold uppercase tracking-wider mb-1">Blood Requests</p>
+            <h3 style={{ margin: 0, fontSize: '1.75rem' }}>{totalRequests}</h3>
           </div>
         </div>
 
-        <div className="glass-card flex items-center gap-4" style={{ padding: '1.5rem' }}>
-          <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'rgba(211,47,47,0.1)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Database size={28} />
+        <div className="glass-card flex items-center gap-4 p-5 sm:col-span-2 md:col-span-1">
+          <div style={{ width: '52px', height: '52px', borderRadius: '50%', background: 'rgba(211,47,47,0.1)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <Database size={26} />
           </div>
           <div>
-            <p className="text-muted text-sm font-medium mb-1">Registered Users</p>
-            <h3 style={{ margin: 0 }}>{totalUsers}</h3>
+            <p className="text-muted text-xs font-semibold uppercase tracking-wider mb-1">Total Users</p>
+            <h3 style={{ margin: 0, fontSize: '1.75rem' }}>{totalUsers}</h3>
           </div>
         </div>
       </div>
 
-      <div className="glass-card">
-        <h3 className="mb-4">Quick Actions</h3>
-        <div className="flex gap-4">
-          <Link href="/admin/import" className="btn btn-primary">
-            <FileSpreadsheet size={18} /> Bulk Import Donors (Excel)
+      {/* Quick Actions */}
+      <div className="glass-card p-6">
+        <h3 className="text-xl font-bold mb-4">Quick Management Actions</h3>
+        <div className="flex flex-col sm:flex-row gap-4 flex-wrap">
+          <Link href="/search" className="btn btn-primary gap-2 justify-center">
+            <Search size={18} /> Search Donors Database
           </Link>
-          <Link href="/search" className="btn btn-outline">
-            View Donor List
+          <Link href="/blood-requests" className="btn btn-outline gap-2 justify-center bg-white">
+            <HeartPulse size={18} /> Manage & Delete Requests
+          </Link>
+          <Link href="/admin/import" className="btn btn-outline gap-2 justify-center bg-white">
+            <FileSpreadsheet size={18} /> Bulk Import (Excel)
           </Link>
         </div>
       </div>
     </div>
   );
 }
+

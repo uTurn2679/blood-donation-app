@@ -35,10 +35,10 @@ export default function ImportPage() {
   };
 
   return (
-    <div className="p-8">
+    <div className="container py-8 md:py-12 animate-fade-in">
       <div className="mb-8">
-        <h2>Import Donors</h2>
-        <p className="text-muted">Upload an Excel (.xlsx) file to bulk import donors into the database.</p>
+        <h1 className="text-2xl md:text-3xl font-bold mb-2">Import Donors</h1>
+        <p className="text-muted text-sm md:text-base">Upload an Excel (.xlsx) file to bulk import donors into the database.</p>
       </div>
 
       <div className="glass-card" style={{ maxWidth: '600px' }}>
