@@ -5,9 +5,11 @@ import Link from "next/link";
 export const dynamic = "force-dynamic";
 
 export default async function AdminDashboard() {
-  const totalDonors = await prisma.donorProfile.count();
-  const totalRequests = await prisma.bloodRequest.count();
-  const totalUsers = await prisma.user.count();
+  // Prevent build-time database queries on Vercel where DATABASE_URL is missing
+  const isBuildTime = !process.env.DATABASE_URL;
+  const totalDonors = isBuildTime ? 0 : await prisma.donorProfile.count();
+  const totalRequests = isBuildTime ? 0 : await prisma.bloodRequest.count();
+  const totalUsers = isBuildTime ? 0 : await prisma.user.count();
 
   return (
     <div className="p-8">
