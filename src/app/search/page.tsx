@@ -86,7 +86,7 @@ export default async function SearchPage({
             </select>
           </div>
 
-          <div className="input-group md:col-span-2" style={{ marginBottom: 0 }}>
+          <div className="input-group md:col-span-3" style={{ marginBottom: 0 }}>
             <label className="input-label">Session</label>
             <select name="session" className="input-field" defaultValue={sessionVal}>
               <option value="">Any</option>
@@ -96,22 +96,9 @@ export default async function SearchPage({
             </select>
           </div>
 
-          <div className="input-group md:col-span-2 flex items-center h-full mb-0 pb-2">
-            <label className="flex items-center gap-2 cursor-pointer font-medium text-sm">
-              <input 
-                type="checkbox" 
-                name="availableOnly" 
-                value="true" 
-                defaultChecked={isAvailableOnly}
-                className="w-4 h-4 text-primary rounded border-gray-300 focus:ring-primary"
-              />
-              Available Only
-            </label>
-          </div>
-
-          <div className="md:col-span-2">
-            <button type="submit" className="btn btn-primary w-full justify-center" style={{ height: '46px' }}>
-              <Search size={18} /> Search
+          <div className="md:col-span-3">
+            <button type="submit" className="btn btn-primary w-full justify-center" style={{ height: '44px' }}>
+              <Search size={18} /> Search Donors
             </button>
           </div>
         </form>
@@ -133,23 +120,14 @@ export default async function SearchPage({
                 
                 return (
                   <div key={donor.id} className="glass-card flex flex-col sm:flex-row gap-4 relative overflow-hidden group hover:border-red-200 transition-colors">
-                    {/* Status Badge */}
-                    <div className="absolute top-4 right-4 flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full border bg-white" style={{
-                      color: isAvailable ? '#16a34a' : '#dc2626',
-                      borderColor: isAvailable ? '#bbf7d0' : '#fecaca',
-                    }}>
-                      {isAvailable ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
-                      {isAvailable ? 'AVAILABLE' : 'UNAVAILABLE'}
-                    </div>
-
-                    <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: isAvailable ? 'var(--primary)' : '#e5e7eb', color: isAvailable ? 'white' : '#9ca3af', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.25rem', fontWeight: 700, flexShrink: 0 }}>
+                    <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'var(--primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.25rem', fontWeight: 700, flexShrink: 0 }}>
                       {donor.bloodGroup}
                     </div>
                     
                     <div className="flex-1 mt-1 sm:mt-0">
-                      <h4 className="flex items-center gap-2 mb-1 pr-24">
-                        <User size={16} className={isAvailable ? "text-primary" : "text-muted"} /> 
-                        <span className={isAvailable ? "text-gray-900" : "text-gray-500"}>{donor.user.name}</span>
+                      <h4 className="flex items-center gap-2 mb-1">
+                        <User size={16} className="text-primary" /> 
+                        <span className="text-gray-900 font-bold">{donor.user.name}</span>
                       </h4>
                       <div className="text-muted text-sm flex flex-col gap-1 mb-3">
                         {donor.location && (
@@ -168,15 +146,9 @@ export default async function SearchPage({
                       </div>
                       
                       <div className="pt-3 border-t border-gray-100">
-                        {isAvailable ? (
-                          <a href={`tel:${donor.user.phone}`} className="text-primary font-medium flex items-center gap-2 hover:text-red-700">
-                            <Phone size={16} /> {donor.user.phone}
-                          </a>
-                        ) : (
-                          <p className="text-gray-400 font-medium flex items-center gap-2 text-sm">
-                            <Phone size={16} /> Phone hidden (Not eligible)
-                          </p>
-                        )}
+                        <a href={`tel:${donor.user.phone}`} className="text-primary font-semibold flex items-center gap-2 hover:underline">
+                          <Phone size={16} /> {donor.user.phone}
+                        </a>
                       </div>
                     </div>
                   </div>
