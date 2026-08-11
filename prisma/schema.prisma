@@ -46,3 +46,4 @@ model BloodRequest {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
+

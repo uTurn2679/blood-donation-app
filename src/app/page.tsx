@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Activity, HeartPulse, Droplet, Users, Building, CalendarClock, Phone } from "lucide-react";
+import { ArrowRight, Activity, HeartPulse, Droplet, Users, Building, CalendarClock, Phone, GraduationCap } from "lucide-react";
 import { getLiveStats, getRecentRequests } from "./actions";
 
 export default async function Home() {
@@ -24,7 +24,7 @@ export default async function Home() {
             Give the Gift of Life, <br/><span className="text-primary">Donate Blood Today.</span>
           </h1>
           <p className="text-muted mb-8" style={{ fontSize: '1.125rem', maxWidth: '600px' }}>
-            Join the largest community of blood donors. Your single donation can save up to three lives. Register today or request blood in emergencies.
+            Join the largest community of blood donors. Your single donation can save up to three lives. Register today, request blood, or participate in online student exams.
           </p>
           
           <div className="flex flex-wrap justify-center gap-4">
@@ -34,6 +34,22 @@ export default async function Home() {
             <Link href="/request-blood" className="btn btn-outline" style={{ padding: '0.875rem 2rem', fontSize: '1.05rem', background: 'white' }}>
               <HeartPulse size={20} /> Post Blood Request
             </Link>
+            <a
+              href="https://exam-o5w4hxsfu-lazy-coder.vercel.app/"
+              target="_blank"
+              rel="noreferrer"
+              className="btn"
+              style={{
+                padding: '0.875rem 2rem',
+                fontSize: '1.05rem',
+                background: '#4f46e5',
+                color: 'white',
+                fontWeight: 700,
+                borderRadius: '8px'
+              }}
+            >
+              <GraduationCap size={20} /> Participate in Online Exams
+            </a>
           </div>
           <div className="mt-6">
             <Link href="/login" className="text-primary font-semibold hover:underline flex items-center gap-1 justify-center">
@@ -189,4 +205,3 @@ export default async function Home() {
     </div>
   );
 }
-

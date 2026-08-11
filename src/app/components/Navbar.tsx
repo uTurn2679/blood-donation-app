@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import {
   Droplet, Heart, Search, User, LogIn, LogOut,
-  ShieldAlert, LayoutDashboard, Activity, Menu, X
+  ShieldAlert, LayoutDashboard, Activity, Menu, X, GraduationCap
 } from "lucide-react";
 import { logoutUser } from "@/app/actions";
 
@@ -42,6 +42,25 @@ export default function Navbar({ isLoggedIn, isAdmin }: NavbarProps) {
             <Link href="/request-blood" className="nav-link">
               <Activity size={17} /> Request Blood
             </Link>
+
+            {/* Link to Exam Portal */}
+            <a
+              href="https://exam-o5w4hxsfu-lazy-coder.vercel.app/"
+              target="_blank"
+              rel="noreferrer"
+              className="nav-link"
+              style={{
+                color: "#4f46e5",
+                fontWeight: 700,
+                background: "#f5f3ff",
+                padding: "0.4rem 0.8rem",
+                borderRadius: "8px",
+                border: "1px solid #c7d2fe"
+              }}
+            >
+              <GraduationCap size={17} color="#4f46e5" /> Online Exams
+            </a>
+
             {isAdmin && (
               <Link href="/admin" className="nav-link">
                 <ShieldAlert size={17} /> Admin
@@ -110,6 +129,19 @@ export default function Navbar({ isLoggedIn, isAdmin }: NavbarProps) {
           <Link href="/request-blood" className="mobile-menu-item" onClick={close}>
             <Activity size={20} /> Request Blood
           </Link>
+
+          {/* Mobile Link to Exam Portal */}
+          <a
+            href="https://exam-o5w4hxsfu-lazy-coder.vercel.app/"
+            target="_blank"
+            rel="noreferrer"
+            className="mobile-menu-item"
+            onClick={close}
+            style={{ color: "#4f46e5", fontWeight: 700 }}
+          >
+            <GraduationCap size={20} color="#4f46e5" /> Online Exams
+          </a>
+
           {isAdmin && (
             <Link href="/admin" className="mobile-menu-item" onClick={close}>
               <ShieldAlert size={20} /> Admin
