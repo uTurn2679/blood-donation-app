@@ -82,7 +82,7 @@ export default async function StudentExamsPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {exams.map((exam) => {
+            {exams.map((exam: any) => {
               const start = new Date(exam.startTime);
               const end = new Date(exam.endTime);
               const isActive = now >= start && now <= end;
@@ -100,7 +100,7 @@ export default async function StudentExamsPage() {
                     padding: "1.5rem",
                     display: "flex",
                     flexDirection: "column",
-                    justify: "space-between",
+                    justifyContent: "space-between",
                     position: "relative",
                     overflow: "hidden"
                   }}

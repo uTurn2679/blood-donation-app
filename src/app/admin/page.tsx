@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { Users, FileSpreadsheet, Activity, Database, Search, HeartPulse } from "lucide-react";
+import { Users, FileSpreadsheet, Activity, Database, Search, HeartPulse, GraduationCap } from "lucide-react";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -55,7 +55,10 @@ export default async function AdminDashboard() {
       <div className="glass-card p-6">
         <h3 className="text-xl font-bold mb-4">Quick Management Actions</h3>
         <div className="flex flex-col sm:flex-row gap-4 flex-wrap">
-          <Link href="/search" className="btn btn-primary gap-2 justify-center">
+          <Link href="/admin/exams" className="btn btn-primary gap-2 justify-center" style={{ background: "#2563eb", color: "white" }}>
+            <GraduationCap size={18} /> Manage MCQ Question Sets & Exams
+          </Link>
+          <Link href="/search" className="btn btn-outline gap-2 justify-center bg-white">
             <Search size={18} /> Search Donors Database
           </Link>
           <Link href="/blood-requests" className="btn btn-outline gap-2 justify-center bg-white">

@@ -2,20 +2,26 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { getAdminExamsAction, createExamAction, deleteExamAction, updateExamAction } from "@/app/actions/examActions";
-import { Plus, Calendar, Clock, FileText, Users, Eye, Edit3, Trash2, CheckCircle2, XCircle, ArrowRight } from "lucide-react";
+import { Plus, Calendar, Clock, FileText, Users, Eye, Edit3, Trash2, CheckCircle2, XCircle, ArrowRight, Sparkles } from "lucide-react";
 
 export default function AdminExamsPage() {
+  const router = useRouter();
   const [exams, setExams] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
 
-  // Form state
+  // Form state with default values
+  const now = new Date();
+  const defaultStart = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+  const defaultEnd = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000 - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+
   const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    startTime: "",
-    endTime: "",
+    title: "New MCQ Assessment Exam",
+    description: "Assessment session. Click 'Manage Questions' to set up to 100 MCQs.",
+    startTime: defaultStart,
+    endTime: defaultEnd,
     durationMinutes: 30,
     totalMarks: 100,
     passMarks: 40,
@@ -48,18 +54,9 @@ export default function AdminExamsPage() {
       passMarks: Number(formData.passMarks),
     });
 
-    if (res.success) {
-      setShowCreateModal(false);
-      setFormData({
-        title: "",
-        description: "",
-        startTime: "",
-        endTime: "",
-        durationMinutes: 30,
-        totalMarks: 100,
-        passMarks: 40,
-      });
-      loadExams();
+    if (res.success && res.exam) {
+      // Automatically redirect to Question Builder Room for this exam!
+      router.push(`/admin/exams/${res.exam.id}/edit`);
     } else {
       alert("Error creating exam: " + res.error);
     }
@@ -174,8 +171,21 @@ export default function AdminExamsPage() {
                 </div>
 
                 <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                  <Link href={`/admin/exams/${exam.id}/edit`} className="btn btn-outline" style={{ width: "100%", justifyContent: "center" }}>
-                    <Edit3 size={16} /> Manage Questions ({exam._count.questions})
+                  <Link
+                    href={`/admin/exams/${exam.id}/edit`}
+                    className="btn btn-primary"
+                    style={{
+                      width: "100%",
+                      justifyContent: "center",
+                      background: "#2563eb",
+                      color: "white",
+                      fontWeight: 700,
+                      padding: "0.75rem",
+                      borderRadius: "0.75rem",
+                      boxShadow: "0 4px 6px -1px rgba(37, 99, 235, 0.25)"
+                    }}
+                  >
+                    <Sparkles size={16} /> Manage Questions / Set 100 MCQs ({exam._count.questions})
                   </Link>
 
                   <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "0.5rem" }}>

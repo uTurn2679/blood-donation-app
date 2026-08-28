@@ -123,6 +123,137 @@ export async function addQuestionAction(input: AddQuestionInput) {
   }
 }
 
+export async function addBulkQuestionsAction(
+  examId: string,
+  questions: {
+    questionText: string;
+    questionType: "MCQ" | "TEXT";
+    options?: string[];
+    correctAnswer?: string;
+    marks: number;
+  }[],
+  replaceExisting: boolean = false
+) {
+  try {
+    if (!questions || questions.length === 0) {
+      return { success: false, error: "No questions provided to add." };
+    }
+
+    if (questions.length > 100) {
+      return { success: false, error: "Maximum 100 MCQ questions allowed per batch template." };
+    }
+
+    if (replaceExisting) {
+      await prisma.question.deleteMany({
+        where: { examId },
+      });
+    }
+
+    const existingCount = replaceExisting
+      ? 0
+      : await prisma.question.count({
+          where: { examId },
+        });
+
+    if (!replaceExisting && (existingCount + questions.length > 100)) {
+      return {
+        success: false,
+        error: `Cannot add ${questions.length} questions. Exceeds the maximum limit of 100 questions per exam (Current: ${existingCount}).`,
+      };
+    }
+
+    const createData = questions.map((q, idx) => ({
+      id: `q_${Date.now()}_${idx}_${Math.random().toString(36).substring(2, 9)}`,
+      examId,
+      questionText: q.questionText.trim() || `Question ${existingCount + idx + 1}`,
+      questionType: q.questionType || "MCQ",
+      options: q.options && q.options.length > 0 ? JSON.stringify(q.options) : null,
+      correctAnswer: q.correctAnswer || (q.options && q.options.length > 0 ? q.options[0] : null),
+      marks: Number(q.marks || 1),
+      order: existingCount + idx + 1,
+    }));
+
+    await prisma.question.createMany({
+      data: createData,
+    });
+
+    const totalExamMarks = await prisma.question.aggregate({
+      where: { examId },
+      _sum: { marks: true },
+    });
+
+    await prisma.exam.update({
+      where: { id: examId },
+      data: { totalMarks: totalExamMarks._sum.marks || 0 },
+    });
+
+    revalidatePath(`/admin/exams/${examId}`);
+    return { success: true, count: createData.length };
+  } catch (error: any) {
+    console.error("Error bulk adding questions:", error);
+    return { success: false, error: error?.message || "Failed to add bulk questions" };
+  }
+}
+
+export async function updateQuestionActionDetails(
+  questionId: string,
+  examId: string,
+  input: {
+    questionText?: string;
+    questionType?: "MCQ" | "TEXT";
+    options?: string[];
+    correctAnswer?: string;
+    marks?: number;
+  }
+) {
+  try {
+    const updateData: any = {};
+    if (input.questionText !== undefined) updateData.questionText = input.questionText;
+    if (input.questionType !== undefined) updateData.questionType = input.questionType;
+    if (input.options !== undefined) updateData.options = JSON.stringify(input.options);
+    if (input.correctAnswer !== undefined) updateData.correctAnswer = input.correctAnswer;
+    if (input.marks !== undefined) updateData.marks = Number(input.marks);
+
+    await prisma.question.update({
+      where: { id: questionId },
+      data: updateData,
+    });
+
+    const totalExamMarks = await prisma.question.aggregate({
+      where: { examId },
+      _sum: { marks: true },
+    });
+
+    await prisma.exam.update({
+      where: { id: examId },
+      data: { totalMarks: totalExamMarks._sum.marks || 0 },
+    });
+
+    revalidatePath(`/admin/exams/${examId}`);
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error?.message || "Failed to update question" };
+  }
+}
+
+export async function deleteAllQuestionsAction(examId: string) {
+  try {
+    await prisma.question.deleteMany({
+      where: { examId },
+    });
+
+    await prisma.exam.update({
+      where: { id: examId },
+      data: { totalMarks: 0 },
+    });
+
+    revalidatePath(`/admin/exams/${examId}`);
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error?.message || "Failed to delete questions" };
+  }
+}
+
 export async function deleteQuestionAction(questionId: string, examId: string) {
   try {
     await prisma.question.delete({
@@ -146,6 +277,7 @@ export async function deleteQuestionAction(questionId: string, examId: string) {
     return { success: false, error: error?.message || "Failed to delete question" };
   }
 }
+
 
 export async function getStudentExamsAction() {
   try {
@@ -291,7 +423,7 @@ export async function submitExamAnswersAction(submissionId: string, answersMap: 
 
 export async function getAdminExamsAction() {
   try {
-    const exams = await prisma.exam.findMany({
+    let exams = await prisma.exam.findMany({
       include: {
         _count: {
           select: { questions: true, submissions: true },
@@ -299,6 +431,33 @@ export async function getAdminExamsAction() {
       },
       orderBy: { createdAt: "desc" },
     });
+
+    if (exams.length === 0) {
+      const now = new Date();
+      const nextMonth = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+      await prisma.exam.create({
+        data: {
+          title: "MCQ Assessment Exam Set 1",
+          description: "Default MCQ assessment session. Click 'Manage Questions / Set 100 MCQs' to build question set.",
+          startTime: now,
+          endTime: nextMonth,
+          durationMinutes: 30,
+          totalMarks: 100,
+          passMarks: 40,
+          isPublished: true,
+        },
+      });
+
+      exams = await prisma.exam.findMany({
+        include: {
+          _count: {
+            select: { questions: true, submissions: true },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+      });
+    }
+
     return { success: true, exams };
   } catch (error: any) {
     return { success: false, error: error?.message || "Failed to fetch admin exams", exams: [] };

@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import {
   Droplet, Heart, Search, User, LogIn, LogOut,
-  ShieldAlert, LayoutDashboard, Activity, Menu, X, GraduationCap
+  ShieldAlert, LayoutDashboard, Activity, Menu, X, GraduationCap, FileText
 } from "lucide-react";
 import { logoutUser } from "@/app/actions";
 
@@ -44,10 +44,8 @@ export default function Navbar({ isLoggedIn, isAdmin }: NavbarProps) {
             </Link>
 
             {/* Link to Exam Portal */}
-            <a
-              href="https://exam-o5w4hxsfu-lazy-coder.vercel.app/"
-              target="_blank"
-              rel="noreferrer"
+            <Link
+              href="/exams"
               className="nav-link"
               style={{
                 color: "#4f46e5",
@@ -59,7 +57,24 @@ export default function Navbar({ isLoggedIn, isAdmin }: NavbarProps) {
               }}
             >
               <GraduationCap size={17} color="#4f46e5" /> Online Exams
-            </a>
+            </Link>
+
+            {isAdmin && (
+              <Link
+                href="/admin/exams"
+                className="nav-link"
+                style={{
+                  color: "#2563eb",
+                  fontWeight: 700,
+                  background: "#eff6ff",
+                  padding: "0.4rem 0.8rem",
+                  borderRadius: "8px",
+                  border: "1px solid #bfdbfe"
+                }}
+              >
+                <FileText size={17} color="#2563eb" /> Question Builder
+              </Link>
+            )}
 
             {isAdmin && (
               <Link href="/admin" className="nav-link">
@@ -131,16 +146,20 @@ export default function Navbar({ isLoggedIn, isAdmin }: NavbarProps) {
           </Link>
 
           {/* Mobile Link to Exam Portal */}
-          <a
-            href="https://exam-o5w4hxsfu-lazy-coder.vercel.app/"
-            target="_blank"
-            rel="noreferrer"
+          <Link
+            href="/exams"
             className="mobile-menu-item"
             onClick={close}
             style={{ color: "#4f46e5", fontWeight: 700 }}
           >
             <GraduationCap size={20} color="#4f46e5" /> Online Exams
-          </a>
+          </Link>
+
+          {isAdmin && (
+            <Link href="/admin/exams" className="mobile-menu-item" onClick={close} style={{ color: "#2563eb", fontWeight: 700 }}>
+              <FileText size={20} color="#2563eb" /> Question Builder
+            </Link>
+          )}
 
           {isAdmin && (
             <Link href="/admin" className="mobile-menu-item" onClick={close}>

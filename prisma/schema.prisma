@@ -47,3 +47,66 @@ model BloodRequest {
   updatedAt      DateTime @updatedAt
 }
 
+model Exam {
+  id              String           @id @default(cuid())
+  title           String
+  description     String?
+  startTime       DateTime
+  endTime         DateTime
+  durationMinutes Int
+  totalMarks      Int              @default(100)
+  passMarks       Int              @default(40)
+  isPublished     Boolean          @default(true)
+  questions       Question[]
+  submissions     ExamSubmission[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+}
+
+model Question {
+  id            String          @id @default(cuid())
+  examId        String
+  exam          Exam            @relation(fields: [examId], references: [id], onDelete: Cascade)
+  questionText  String
+  questionType  String          @default("MCQ") // MCQ, TEXT
+  options       String?         // JSON string array of choices
+  correctAnswer String?
+  marks         Int             @default(5)
+  order         Int             @default(1)
+  answers       StudentAnswer[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+}
+
+model ExamSubmission {
+  id           String          @id @default(cuid())
+  examId       String
+  exam         Exam            @relation(fields: [examId], references: [id], onDelete: Cascade)
+  studentName  String
+  studentEmail String?
+  studentPhone String?
+  startTime    DateTime        @default(now())
+  submittedAt  DateTime?
+  totalScore   Int?
+  status       String          @default("IN_PROGRESS") // IN_PROGRESS, SUBMITTED, GRADED
+  feedback     String?
+  answers      StudentAnswer[]
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+}
+
+model StudentAnswer {
+  id             String         @id @default(cuid())
+  submissionId   String
+  submission     ExamSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  questionId     String
+  question       Question       @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  selectedOption String?
+  writtenAnswer  String?
+  isCorrect      Boolean?
+  marksObtained  Int?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+
