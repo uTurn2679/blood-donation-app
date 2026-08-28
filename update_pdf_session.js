@@ -33,10 +33,10 @@ async function main() {
   // Update donorProfiles for these users
   const updateResult = await prisma.donorProfile.updateMany({
     where: { userId: { in: userIds } },
-    data: { session: '24-25' }
+    data: { session: '25-26' }
   });
 
-  console.log(`Successfully updated ${updateResult.count} donor profiles to session "24-25"!`);
+  console.log(`Successfully updated ${updateResult.count} donor profiles to session "25-26"!`);
 
   await pool.end();
 }
