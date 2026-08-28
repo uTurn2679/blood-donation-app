@@ -1,0 +1,478 @@
+require('dotenv').config();
+const { PrismaClient } = require('@prisma/client');
+const { PrismaPg } = require('@prisma/adapter-pg');
+const { Pool } = require('pg');
+
+async function main() {
+  console.log('Connecting to db for full PDF donor import (350+ donors)...');
+  const pool = new Pool({ 
+    connectionString: process.env.DATABASE_URL,
+    connectionTimeoutMillis: 30000
+  });
+  const adapter = new PrismaPg(pool);
+  const prisma = new PrismaClient({ adapter });
+
+  const donors = [
+    // Page 1: IR (23-24)
+    { Name: 'নদীয়া হক নদী', Phone: '01714058385', BloodGroup: 'B+', Department: 'IR', Session: '23-24' },
+    { Name: 'খাদিজা পারভীন', Phone: '01986368088', BloodGroup: 'AB+', Department: 'IR', Session: '23-24' },
+    { Name: 'সামিয়া জামান ঐশী', Phone: '01322086956', BloodGroup: 'B+', Department: 'IR', Session: '23-24' },
+    { Name: 'সিগমা খাতুন', Phone: '01924749385', BloodGroup: 'A+', Department: 'IR', Session: '23-24' },
+    { Name: 'ইশরাত জাহান', Phone: '01939287615', BloodGroup: 'B+', Department: 'IR', Session: '23-24' },
+    { Name: 'রুবাইয়া', Phone: '01819775477', BloodGroup: 'A+', Department: 'IR', Session: '23-24' },
+    { Name: 'মিনা', Phone: '01312653449', BloodGroup: 'O-', Department: 'IR', Session: '23-24' },
+    { Name: 'তাসলিমা', Phone: '01814702523', BloodGroup: 'A+', Department: 'IR', Session: '23-24' },
+    { Name: 'সুহতারিন আহমেদ', Phone: '01708908937', BloodGroup: 'A+', Department: 'IR', Session: '23-24' },
+    { Name: 'প্রভা চাকমা', Phone: '01878251961', BloodGroup: 'O+', Department: 'IR', Session: '23-24' },
+    { Name: 'স্মৃতি রায় প্রমি', Phone: '01745092566', BloodGroup: 'AB-', Department: 'IR', Session: '23-24' },
+    { Name: 'অন্বেষা নন্দী', Phone: '01788778573', BloodGroup: 'A+', Department: 'IR', Session: '23-24' },
+    { Name: 'জোয়িযা', Phone: '01322109679', BloodGroup: 'O+', Department: 'IR', Session: '23-24' },
+    { Name: 'তানিম', Phone: '01933216882', BloodGroup: 'AB+', Department: 'IR', Session: '23-24' },
+    { Name: 'সানজিদা', Phone: '01323752575', BloodGroup: 'A+', Department: 'IR', Session: '23-24' },
+    { Name: 'হীরা আক্তার', Phone: '01604216913', BloodGroup: 'B+', Department: 'IR', Session: '23-24' },
+    { Name: 'মোহনা আক্তার', Phone: '01976416862', BloodGroup: 'O+', Department: 'IR', Session: '23-24' },
+    { Name: 'মালিহা', Phone: '01772032627', BloodGroup: 'O+', Department: 'IR', Session: '23-24' },
+    { Name: 'ইথিকা', Phone: '01717287985', BloodGroup: 'A+', Department: 'IR', Session: '23-24' },
+    { Name: 'জাবিয়া', Phone: '01409569068', BloodGroup: 'B+', Department: 'IR', Session: '23-24' },
+    { Name: 'সায়মা', Phone: '01797491192', BloodGroup: 'B+', Department: 'IR', Session: '23-24' },
+    { Name: 'লিজা', Phone: '01610866085', BloodGroup: 'AB+', Department: 'IR', Session: '23-24' },
+    { Name: 'ফাতেমা', Phone: '01987446503', BloodGroup: 'B+', Department: 'IR', Session: '23-24' },
+    { Name: 'গায়েত্রী সরকার', Phone: '01866540659', BloodGroup: 'B-', Department: 'IR', Session: '23-24' },
+    { Name: 'ইশরাত জাহান রিয়া', Phone: '01615560014', BloodGroup: 'O+', Department: 'IR', Session: '23-24' },
+
+    // Page 2: Food E. (24-25)
+    { Name: 'রুবাইয়েত', Phone: '01891445597', BloodGroup: 'O+', Department: 'FE', Session: '24-25' },
+    { Name: 'Md. Sohabuddin', Phone: '01776160703', BloodGroup: 'B+', Department: 'FE', Session: '24-25' },
+    { Name: 'Jihad', Phone: '01775018092', BloodGroup: 'A+', Department: 'FE', Session: '24-25' },
+    { Name: 'Meraj', Phone: '01328222371', BloodGroup: 'A+', Department: 'FE', Session: '24-25' },
+    { Name: 'Zaman', Phone: '01013195556', BloodGroup: 'O+', Department: 'FE', Session: '24-25' },
+    { Name: 'Toufik', Phone: '01734825202', BloodGroup: 'O+', Department: 'FE', Session: '24-25' },
+    { Name: 'Md. Shakib', Phone: '01708435377', BloodGroup: 'A+', Department: 'FE', Session: '24-25' },
+    { Name: 'Rakib', Phone: '01307306629', BloodGroup: 'O+', Department: 'FE', Session: '24-25' },
+    { Name: 'Roni Gain Joy', Phone: '01300088493', BloodGroup: 'A+', Department: 'FE', Session: '24-25' },
+    { Name: 'Md. Numan Hassan', Phone: '01754599921', BloodGroup: 'A+', Department: 'FE', Session: '24-25' },
+    { Name: 'Md. Naeem Miah', Phone: '01772507092', BloodGroup: 'B-', Department: 'FE', Session: '24-25' },
+    { Name: 'Md. Tawhid Munshi', Phone: '01326171929', BloodGroup: 'O+', Department: 'FE', Session: '24-25' },
+    { Name: 'Ulapru Marma', Phone: '01893037564', BloodGroup: 'B+', Department: 'FE', Session: '24-25' },
+    { Name: 'Md. Kamruzzaman Emon', Phone: '01786517992', BloodGroup: 'O+', Department: 'FE', Session: '24-25' },
+    { Name: 'Norottom Gain', Phone: '01725807988', BloodGroup: 'A+', Department: 'FE', Session: '24-25' },
+    { Name: 'Debashish', Phone: '01516531992', BloodGroup: 'A+', Department: 'FE', Session: '24-25' },
+    { Name: 'Shoayeb', Phone: '01753962295', BloodGroup: 'A+', Department: 'FE', Session: '24-25' },
+    { Name: 'Mubashir', Phone: '01940345269', BloodGroup: 'B+', Department: 'FE', Session: '24-25' },
+
+    // Page 3: ARCH (24-25)
+    { Name: 'তনুজা ডালী', Phone: '01715622500', BloodGroup: 'O+', Department: 'ARCH', Session: '24-25' },
+    { Name: 'জেসিকা ইমাম', Phone: '01921385480', BloodGroup: 'O+', Department: 'ARCH', Session: '24-25' },
+    { Name: 'প্রিয়া দাস', Phone: '01952097212', BloodGroup: 'O+', Department: 'ARCH', Session: '24-25' },
+    { Name: 'সামিহা রানা মৃদুলা', Phone: '01650150340', BloodGroup: 'O+', Department: 'ARCH', Session: '24-25' },
+    { Name: 'তৌসি মারাফ', Phone: '01729701539', BloodGroup: 'A+', Department: 'ARCH', Session: '24-25' },
+    { Name: 'সানজিদা আক্তার লাবন্য', Phone: '01929784604', BloodGroup: 'B+', Department: 'ARCH', Session: '24-25' },
+    { Name: 'আরিয়ান শাহরিয়ার আলি', Phone: '01703388303', BloodGroup: 'O+', Department: 'ARCH', Session: '24-25' },
+    { Name: 'মানসুরা আক্তার রিন্সি', Phone: '01734726528', BloodGroup: 'A+', Department: 'ARCH', Session: '24-25' },
+    { Name: 'অন্তরা রায়', Phone: '01312309156', BloodGroup: 'O+', Department: 'ARCH', Session: '24-25' },
+    { Name: 'সিফাত আহমেদ', Phone: '01781492703', BloodGroup: 'O+', Department: 'ARCH', Session: '24-25' },
+    { Name: 'তন্ময় ধর', Phone: '01866797604', BloodGroup: 'B+', Department: 'ARCH', Session: '24-25' },
+    { Name: 'মাহি রহমান', Phone: '01975308575', BloodGroup: 'A+', Department: 'ARCH', Session: '24-25' },
+    { Name: 'মোঃ রাহাতুজ্জামান', Phone: '01629114633', BloodGroup: 'B+', Department: 'ARCH', Session: '24-25' },
+    { Name: 'আফিয়া আনতারা আনিসা', Phone: '01577306280', BloodGroup: 'B+', Department: 'ARCH', Session: '24-25' },
+    { Name: 'নাবিলা সিদ্দিকা', Phone: '01940258330', BloodGroup: 'O+', Department: 'ARCH', Session: '24-25' },
+    { Name: 'এহসান আহমেদ অমি', Phone: '01770680214', BloodGroup: 'A+', Department: 'ARCH', Session: '24-25' },
+
+    // Page 4 & 5: PSY (24-25)
+    { Name: 'মুনতাহা', Phone: '01938638286', BloodGroup: 'O+', Department: 'PSY', Session: '24-25' },
+    { Name: 'ময়মুনা পারভিন', Phone: '01325809937', BloodGroup: 'O+', Department: 'PSY', Session: '24-25' },
+    { Name: 'মোঃ হুমায়ুন কবীর', Phone: '01719207374', BloodGroup: 'A+', Department: 'PSY', Session: '24-25' },
+    { Name: 'নীলিমা আফরোজ রূপা', Phone: '01313730909', BloodGroup: 'O+', Department: 'PSY', Session: '24-25' },
+    { Name: 'মারুফ হাসান সৈকত', Phone: '01317824284', BloodGroup: 'A+', Department: 'PSY', Session: '24-25' },
+    { Name: 'একরামুল হক রুবেল', Phone: '01929807932', BloodGroup: 'B+', Department: 'PSY', Session: '24-25' },
+    { Name: 'আমিনুর রহমান', Phone: '01878803036', BloodGroup: 'O+', Department: 'PSY', Session: '24-25' },
+    { Name: 'মোঃ আজিজ', Phone: '01822812914', BloodGroup: 'AB+', Department: 'PSY', Session: '24-25' },
+    { Name: 'সুপ্রীতি বিশ্বাস', Phone: '01830938046', BloodGroup: 'B+', Department: 'PSY', Session: '24-25' },
+    { Name: 'নিলয় সরকার', Phone: '01581690813', BloodGroup: 'B+', Department: 'PSY', Session: '24-25' },
+    { Name: 'মিশকাতুল সাবরুনা', Phone: '01791714336', BloodGroup: 'B+', Department: 'PSY', Session: '24-25' },
+    { Name: 'সাদিয়া আফরিন শশী', Phone: '01703420517', BloodGroup: 'B+', Department: 'PSY', Session: '24-25' },
+    { Name: 'ডালিয়া সুলতানা', Phone: '01863331631', BloodGroup: 'A+', Department: 'PSY', Session: '24-25' },
+    { Name: 'নার্গিস ফারহাত', Phone: '01837978537', BloodGroup: 'B+', Department: 'PSY', Session: '24-25' },
+    { Name: 'সামিহা ফাহিমিদা', Phone: '01349168671', BloodGroup: 'O+', Department: 'PSY', Session: '24-25' },
+    { Name: 'আসিয়া খাতুন', Phone: '01345584010', BloodGroup: 'AB+', Department: 'PSY', Session: '24-25' },
+    { Name: 'জান্নাতুল ফেরদৌস', Phone: '01326065816', BloodGroup: 'O+', Department: 'PSY', Session: '24-25' },
+    { Name: 'সাকমা সুলতানা', Phone: '01308697301', BloodGroup: 'A+', Department: 'PSY', Session: '24-25' },
+    { Name: 'পূজা বিশ্বাস', Phone: '01519603029', BloodGroup: 'O+', Department: 'PSY', Session: '24-25' },
+    { Name: 'ঐশ্বর্য ভৌমিক এথী', Phone: '01758337069', BloodGroup: 'B+', Department: 'PSY', Session: '24-25' },
+    { Name: 'আফিয়া ফৌজিয়া', Phone: '01712029309', BloodGroup: 'O+', Department: 'PSY', Session: '24-25' },
+    { Name: 'তাসনিম তাবাসসুম', Phone: '01403396129', BloodGroup: 'O+', Department: 'PSY', Session: '24-25' },
+    { Name: 'কাঞ্চন রেশমা ওমান', Phone: '01533482878', BloodGroup: 'B+', Department: 'PSY', Session: '24-25' },
+    { Name: 'সাদিয়া নূর', Phone: '01709603935', BloodGroup: 'AB-', Department: 'PSY', Session: '24-25' },
+    { Name: 'সামিয়া সুবর্ণা', Phone: '01868027184', BloodGroup: 'B+', Department: 'PSY', Session: '24-25' },
+    { Name: 'নুসরাত জাহান নাইম', Phone: '01999886116', BloodGroup: 'AB+', Department: 'PSY', Session: '24-25' },
+    { Name: 'সীমা আক্তার', Phone: '01317069984', BloodGroup: 'O+', Department: 'PSY', Session: '24-25' },
+    { Name: 'শারেজিম শারমিন', Phone: '01878581766', BloodGroup: 'B+', Department: 'PSY', Session: '24-25' },
+
+    // Page 6 & 7: THM (24-25)
+    { Name: 'সুমাইয়া আক্তার', Phone: '01948608010', BloodGroup: 'B+', Department: 'THM', Session: '24-25' },
+    { Name: 'শোভনা রায়', Phone: '01715657254', BloodGroup: 'B+', Department: 'THM', Session: '24-25' },
+    { Name: 'স্মৃতি রানী সাহা', Phone: '01787348728', BloodGroup: 'O+', Department: 'THM', Session: '24-25' },
+    { Name: 'ইতি সোম', Phone: '01303075795', BloodGroup: 'A+', Department: 'THM', Session: '24-25' },
+    { Name: 'মোসাঃ ইয়াসমিন সুলতানা', Phone: '01302417908', BloodGroup: 'O+', Department: 'THM', Session: '24-25' },
+    { Name: 'চম্পা সরকার', Phone: '01826393620', BloodGroup: 'B+', Department: 'THM', Session: '24-25' },
+    { Name: 'শামছুন্নাহার প্রীতি', Phone: '01917634210', BloodGroup: 'O+', Department: 'THM', Session: '24-25' },
+    { Name: 'তমা সাহা', Phone: '01851875620', BloodGroup: 'B-', Department: 'THM', Session: '24-25' },
+    { Name: 'অনিন্দ্য সাহা', Phone: '01581550670', BloodGroup: 'AB+', Department: 'THM', Session: '24-25' },
+    { Name: 'নাবিলা রহমান', Phone: '01614816866', BloodGroup: 'B+', Department: 'THM', Session: '24-25' },
+    { Name: 'অর্ঘ্য পাল', Phone: '01745886027', BloodGroup: 'B+', Department: 'THM', Session: '24-25' },
+    { Name: 'সুজন আহমেদ', Phone: '01726987979', BloodGroup: 'O+', Department: 'THM', Session: '24-25' },
+    { Name: 'মোসাঃ সানিয়া আক্তার', Phone: '01629458979', BloodGroup: 'B+', Department: 'THM', Session: '24-25' },
+    { Name: 'ইশরাত জাহান ইতিমম', Phone: '01608000804', BloodGroup: 'O+', Department: 'THM', Session: '24-25' },
+    { Name: 'মোছাঃ খাদিজা খাতুন', Phone: '01884096658', BloodGroup: 'B+', Department: 'THM', Session: '24-25' },
+    { Name: 'ছাকিব মাহমুদ খান', Phone: '01765079600', BloodGroup: 'B+', Department: 'THM', Session: '24-25' },
+    { Name: 'অদিতি রায়', Phone: '01603703810', BloodGroup: 'B+', Department: 'THM', Session: '24-25' },
+    { Name: 'মোসাঃ তাছরিন আক্তার', Phone: '01758076479', BloodGroup: 'A+', Department: 'THM', Session: '24-25' },
+
+    // Page 8 & 18: PHR (24-25)
+    { Name: 'শেখ মেহেদী হাসান', Phone: '01576543788', BloodGroup: 'A+', Department: 'PHR', Session: '24-25' },
+    { Name: 'মোঃ শওকত হাসান রাফি', Phone: '01991405949', BloodGroup: 'A+', Department: 'PHR', Session: '24-25' },
+    { Name: 'মোঃ রাজিবুল আলম বাপ্পি', Phone: '01779867747', BloodGroup: 'O+', Department: 'PHR', Session: '24-25' },
+    { Name: 'ইমন আহমেদ', Phone: '01770475064', BloodGroup: 'B+', Department: 'PHR', Session: '24-25' },
+    { Name: 'সালমান শেখ', Phone: '01927105847', BloodGroup: 'AB+', Department: 'PHR', Session: '24-25' },
+    { Name: 'মতিউর রহমান', Phone: '01312193307', BloodGroup: 'B+', Department: 'PHR', Session: '24-25' },
+    { Name: 'সৈকত আহমেদ', Phone: '01719438562', BloodGroup: 'AB+', Department: 'PHR', Session: '24-25' },
+    { Name: 'মোঃ রাসেল', Phone: '01516517839', BloodGroup: 'A+', Department: 'PHR', Session: '24-25' },
+    { Name: 'মোহাম্মদ নিশান', Phone: '01842782488', BloodGroup: 'A+', Department: 'PHR', Session: '24-25' },
+    { Name: 'আব্দুল আল আহাদ', Phone: '01827087916', BloodGroup: 'O+', Department: 'PHR', Session: '24-25' },
+    { Name: 'হায়েতউল্লাহ আরাফাত', Phone: '01783569050', BloodGroup: 'A+', Department: 'PHR', Session: '24-25' },
+    { Name: 'নিশান আলী', Phone: '01754256548', BloodGroup: 'B+', Department: 'PHR', Session: '24-25' },
+    { Name: 'শাহিনুর রহমান', Phone: '01887140825', BloodGroup: 'O+', Department: 'PHR', Session: '24-25' },
+    { Name: 'তৌফিক মিয়াম', Phone: '01822613425', BloodGroup: 'B+', Department: 'PHR', Session: '24-25' },
+    { Name: 'তন্নি', Phone: '01990240664', BloodGroup: 'B+', Department: 'PHR', Session: '24-25' },
+    { Name: 'মৃদুলা', Phone: '01345491662', BloodGroup: 'B+', Department: 'PHR', Session: '24-25' },
+    { Name: 'কুনারা', Phone: '01872786775', BloodGroup: 'AB+', Department: 'PHR', Session: '24-25' },
+    { Name: 'দিবা', Phone: '01779608175', BloodGroup: 'A+', Department: 'PHR', Session: '24-25' },
+    { Name: 'বৃষ্টি', Phone: '01781506484', BloodGroup: 'B+', Department: 'PHR', Session: '24-25' },
+    { Name: 'সামিয়া', Phone: '01864577628', BloodGroup: 'O+', Department: 'PHR', Session: '24-25' },
+    { Name: 'মিলি', Phone: '01993232105', BloodGroup: 'A+', Department: 'PHR', Session: '24-25' },
+    { Name: 'দোলা', Phone: '01409456438', BloodGroup: 'B+', Department: 'PHR', Session: '24-25' },
+    { Name: 'সোহেলী', Phone: '01324846347', BloodGroup: 'A+', Department: 'PHR', Session: '24-25' },
+    { Name: 'হাবিবা', Phone: '01622961977', BloodGroup: 'B+', Department: 'PHR', Session: '24-25' },
+    { Name: 'কাকলী', Phone: '01743822137', BloodGroup: 'A+', Department: 'PHR', Session: '24-25' },
+    { Name: 'নূর-ই-জান্নাত', Phone: '01601292764', BloodGroup: 'B+', Department: 'PHR', Session: '24-25' },
+    { Name: 'মিষ্টি', Phone: '01827476248', BloodGroup: 'O+', Department: 'PHR', Session: '24-25' },
+    { Name: 'আফরিন', Phone: '01637861382', BloodGroup: 'B+', Department: 'PHR', Session: '24-25' },
+    { Name: 'তৈয়েবা', Phone: '01345222703', BloodGroup: 'B+', Department: 'PHR', Session: '24-25' },
+    { Name: 'বিভা', Phone: '01649089482', BloodGroup: 'O+', Department: 'PHR', Session: '24-25' },
+    { Name: 'উর্মী', Phone: '01874906789', BloodGroup: 'O+', Department: 'PHR', Session: '24-25' },
+    { Name: 'নদী', Phone: '01774664600', BloodGroup: 'A+', Department: 'PHR', Session: '24-25' },
+    { Name: 'ইমি', Phone: '01770707011', BloodGroup: 'A+', Department: 'PHR', Session: '24-25' },
+
+    // Page 9 & 21: MGT (24-25)
+    { Name: 'জয় রায়', Phone: '01767467220', BloodGroup: 'A+', Department: 'MGT', Session: '24-25' },
+    { Name: 'তানভীর', Phone: '01974886161', BloodGroup: 'B+', Department: 'MGT', Session: '24-25' },
+    { Name: 'সৈকত', Phone: '01930086318', BloodGroup: 'B+', Department: 'MGT', Session: '24-25' },
+    { Name: 'বদরুজ্জামান', Phone: '01778909711', BloodGroup: 'O+', Department: 'MGT', Session: '24-25' },
+    { Name: 'রিপন রায়', Phone: '01313978148', BloodGroup: 'B+', Department: 'MGT', Session: '24-25' },
+    { Name: 'মোঃ গোলাম মেহজাবিন', Phone: '01903089479', BloodGroup: 'AB+', Department: 'MGT', Session: '24-25' },
+    { Name: 'প্রত্যুষ চক্রবর্তী', Phone: '01745094051', BloodGroup: 'B+', Department: 'MGT', Session: '24-25' },
+    { Name: 'দোলা দত্ত পোদ্দার', Phone: '01760273710', BloodGroup: 'O+', Department: 'MGT', Session: '24-25' },
+    { Name: 'তন্ময় বণিক', Phone: '01568742480', BloodGroup: 'A+', Department: 'MGT', Session: '24-25' },
+    { Name: 'মোঃ লিমন হোসেন', Phone: '01581391208', BloodGroup: 'O+', Department: 'MGT', Session: '24-25' },
+    { Name: 'ফাহিমুল ইসলাম', Phone: '01619517852', BloodGroup: 'O+', Department: 'MGT', Session: '24-25' },
+    { Name: 'প্রসেনজিৎ দাস', Phone: '01636936164', BloodGroup: 'O+', Department: 'MGT', Session: '24-25' },
+    { Name: 'মাহাফুজুর', Phone: '01727790873', BloodGroup: 'O+', Department: 'MGT', Session: '24-25' },
+    { Name: 'সুজিত দাস', Phone: '01717726137', BloodGroup: 'B+', Department: 'MGT', Session: '24-25' },
+    { Name: 'আম্বিকা', Phone: '01331562585', BloodGroup: 'A+', Department: 'MGT', Session: '24-25' },
+    { Name: 'সাগর', Phone: '01983366919', BloodGroup: 'B-', Department: 'MGT', Session: '24-25' },
+
+    // Page 10, 11 & 12: FMB (24-25)
+    { Name: 'তৃষ্ণা রানী মন্ডল', Phone: '01734457872', BloodGroup: 'O+', Department: 'FMB', Session: '24-25' },
+    { Name: 'দিপা পাল', Phone: '01720813072', BloodGroup: 'A+', Department: 'FMB', Session: '24-25' },
+    { Name: 'ফায়রুজ্জ ইশরাত আরিন', Phone: '01923395232', BloodGroup: 'B+', Department: 'FMB', Session: '24-25' },
+    { Name: 'জান্নাতুল আফরিন', Phone: '01856458266', BloodGroup: 'O+', Department: 'FMB', Session: '24-25' },
+    { Name: 'মনিরা ইয়াসমিন', Phone: '01746277642', BloodGroup: 'B+', Department: 'FMB', Session: '24-25' },
+    { Name: 'ঐশ্বর্য রায়', Phone: '01791596063', BloodGroup: 'O+', Department: 'FMB', Session: '24-25' },
+    { Name: 'মোছাঃ সাদিয়া হক মৌ', Phone: '01315976001', BloodGroup: 'AB+', Department: 'FMB', Session: '24-25' },
+    { Name: 'বৈশাখী ইয়াসমিন', Phone: '01926480195', BloodGroup: 'A+', Department: 'FMB', Session: '24-25' },
+    { Name: 'পায়েলা বিশ্বাস', Phone: '01821842851', BloodGroup: 'AB+', Department: 'FMB', Session: '24-25' },
+    { Name: 'ফারিহা ইয়াসমিন', Phone: '01755006593', BloodGroup: 'A+', Department: 'FMB', Session: '24-25' },
+    { Name: 'সুস্মিতা মল্লিক দোলা', Phone: '01930630621', BloodGroup: 'AB+', Department: 'FMB', Session: '24-25' },
+    { Name: 'স্বর্ণলতা সরকার', Phone: '01828938989', BloodGroup: 'A+', Department: 'FMB', Session: '24-25' },
+    { Name: 'আরফিনা আফরিন মমি', Phone: '01983528984', BloodGroup: 'A+', Department: 'FMB', Session: '24-25' },
+    { Name: 'Nishad Hasan', Phone: '01646517604', BloodGroup: 'A+', Department: 'FMB', Session: '24-25' },
+    { Name: 'Md. Roky Islam', Phone: '01719289971', BloodGroup: 'B+', Department: 'FMB', Session: '24-25' },
+    { Name: 'Md. Samiuzzaman', Phone: '01308965599', BloodGroup: 'A+', Department: 'FMB', Session: '24-25' },
+    { Name: 'Hriday Halder', Phone: '01326981866', BloodGroup: 'B+', Department: 'FMB', Session: '24-25' },
+    { Name: 'Shuvo Das', Phone: '01859556073', BloodGroup: 'A+', Department: 'FMB', Session: '24-25' },
+    { Name: 'T.A.S. Musaddique', Phone: '01790737138', BloodGroup: 'O+', Department: 'FMB', Session: '24-25' },
+    { Name: 'MD. RIAD MREDHA', Phone: '01641624433', BloodGroup: 'B+', Department: 'FMB', Session: '24-25' },
+    { Name: 'Tanjimul Islam', Phone: '01717795899', BloodGroup: 'AB+', Department: 'FMB', Session: '24-25' },
+    { Name: 'Saad Mohammad', Phone: '01848531510', BloodGroup: 'A+', Department: 'FMB', Session: '24-25' },
+
+    // Page 13 & 14: LAW (24-25)
+    { Name: 'আফনাফ শাহারিয়ার আরিফ', Phone: '01859031137', BloodGroup: 'A+', Department: 'LAW', Session: '24-25' },
+    { Name: 'রাশেদ আহমেদ', Phone: '01871532415', BloodGroup: 'A+', Department: 'LAW', Session: '24-25' },
+    { Name: 'মোঃ সাইমন', Phone: '01612076052', BloodGroup: 'O+', Department: 'LAW', Session: '24-25' },
+    { Name: 'অনুপা', Phone: '01611989126', BloodGroup: 'B+', Department: 'LAW', Session: '24-25' },
+    { Name: 'অয়েজ', Phone: '01645387722', BloodGroup: 'B+', Department: 'LAW', Session: '24-25' },
+    { Name: 'আকাশ', Phone: '01838784976', BloodGroup: 'O+', Department: 'LAW', Session: '24-25' },
+    { Name: 'বিজয়', Phone: '01947267110', BloodGroup: 'B+', Department: 'LAW', Session: '24-25' },
+    { Name: 'মোঃ জাহেরুল ইসলাম', Phone: '01914969984', BloodGroup: 'O+', Department: 'LAW', Session: '24-25' },
+    { Name: 'ইমরান হোসেন', Phone: '01777944439', BloodGroup: 'B+', Department: 'LAW', Session: '24-25' },
+    { Name: 'আঃ রহমান', Phone: '01607188324', BloodGroup: 'AB+', Department: 'LAW', Session: '24-25' },
+    { Name: 'সৌমিত কুমার', Phone: '01316051410', BloodGroup: 'B+', Department: 'LAW', Session: '24-25' },
+    { Name: 'SHOHAG', Phone: '01645423060', BloodGroup: 'B+', Department: 'LAW', Session: '24-25' },
+    { Name: 'ALVEE', Phone: '01847790260', BloodGroup: 'A+', Department: 'LAW', Session: '24-25' },
+    { Name: 'রাজিন', Phone: '01306011670', BloodGroup: 'B+', Department: 'LAW', Session: '24-25' },
+    { Name: 'Asman', Phone: '01600749123', BloodGroup: 'O+', Department: 'LAW', Session: '24-25' },
+    { Name: 'Hasibur Rahman', Phone: '01840404934', BloodGroup: 'A+', Department: 'LAW', Session: '24-25' },
+    { Name: 'ফারজানা', Phone: '01791223288', BloodGroup: 'A+', Department: 'LAW', Session: '24-25' },
+    { Name: 'সায়মা', Phone: '01923737507', BloodGroup: 'O+', Department: 'LAW', Session: '24-25' },
+    { Name: 'মেহেজাবিন', Phone: '01934307408', BloodGroup: 'B+', Department: 'LAW', Session: '24-25' },
+    { Name: 'সুমনা', Phone: '01978489156', BloodGroup: 'O+', Department: 'LAW', Session: '24-25' },
+    { Name: 'সোনালী', Phone: '01747993771', BloodGroup: 'AB+', Department: 'LAW', Session: '24-25' },
+    { Name: 'মরিয়াম ইসলাম', Phone: '01887559454', BloodGroup: 'B+', Department: 'LAW', Session: '24-25' },
+    { Name: 'তৃপ্তি', Phone: '01777840107', BloodGroup: 'B+', Department: 'LAW', Session: '24-25' },
+    { Name: 'লামিয়া খানম', Phone: '01714624621', BloodGroup: 'O+', Department: 'LAW', Session: '24-25' },
+    { Name: 'সুরভী', Phone: '01839738180', BloodGroup: 'A+', Department: 'LAW', Session: '24-25' },
+    { Name: 'ইসরাত অর্পা', Phone: '01912599364', BloodGroup: 'AB+', Department: 'LAW', Session: '24-25' },
+    { Name: 'সুমিত্রা', Phone: '01980874421', BloodGroup: 'B+', Department: 'LAW', Session: '24-25' },
+    { Name: 'মায়ানিলু অধিকারী', Phone: '01619899523', BloodGroup: 'O+', Department: 'LAW', Session: '24-25' },
+    { Name: 'সাদিয়া ইসলাম', Phone: '01307111929', BloodGroup: 'B+', Department: 'LAW', Session: '24-25' },
+    { Name: 'স্বপ্নাতুল ফেরদৌস', Phone: '01642032470', BloodGroup: 'B+', Department: 'LAW', Session: '24-25' },
+    { Name: 'সিফাতাতুল', Phone: '01839715108', BloodGroup: 'A+', Department: 'LAW', Session: '24-25' },
+    { Name: 'মোরিনা আক্তার', Phone: '01761302856', BloodGroup: 'AB+', Department: 'LAW', Session: '24-25' },
+    { Name: 'জান্নাতুল ফেরদৌসী', Phone: '01572919002', BloodGroup: 'B+', Department: 'LAW', Session: '24-25' },
+    { Name: 'সুপ্রীতি পাল', Phone: '01326321852', BloodGroup: 'B+', Department: 'LAW', Session: '24-25' },
+    { Name: 'মোসাঃ নূপুর আক্তার', Phone: '01820358289', BloodGroup: 'A+', Department: 'LAW', Session: '24-25' },
+
+    // Page 15: IR (24-25)
+    { Name: 'মোঃ রাজিবুল হাসান', Phone: '01604286040', BloodGroup: 'B+', Department: 'IR', Session: '24-25' },
+    { Name: 'সিরাতুল ইসলাম শিশির', Phone: '01979469382', BloodGroup: 'AB+', Department: 'IR', Session: '24-25' },
+    { Name: 'মুজাহিদ', Phone: '01314802267', BloodGroup: 'AB+', Department: 'IR', Session: '24-25' },
+    { Name: 'আলমান', Phone: '01313253055', BloodGroup: 'O+', Department: 'IR', Session: '24-25' },
+    { Name: 'সিয়াম', Phone: '01832071727', BloodGroup: 'AB+', Department: 'IR', Session: '24-25' },
+    { Name: 'অর্পিতা দাস', Phone: '01988705702', BloodGroup: 'O+', Department: 'IR', Session: '24-25' },
+    { Name: 'পুষ্পিতা বাড়ই', Phone: '01767848312', BloodGroup: 'O+', Department: 'IR', Session: '24-25' },
+    { Name: 'সরাত জাহান সাদিয়া', Phone: '01799035933', BloodGroup: 'O+', Department: 'IR', Session: '24-25' },
+    { Name: 'নামিয়া ইসলাম', Phone: '01827126244', BloodGroup: 'A+', Department: 'IR', Session: '24-25' },
+    { Name: 'নাজমুন নাহার স্নেহা', Phone: '01346642464', BloodGroup: 'O+', Department: 'IR', Session: '24-25' },
+    { Name: 'সামারা শাহরীন', Phone: '01855994398', BloodGroup: 'O+', Department: 'IR', Session: '24-25' },
+    { Name: 'সাদিয়া আক্তার মনি', Phone: '01894244635', BloodGroup: 'A+', Department: 'IR', Session: '24-25' },
+    { Name: 'মেহবুবা আফরিন', Phone: '01603927518', BloodGroup: 'O+', Department: 'IR', Session: '24-25' },
+    { Name: 'আফরা নাওয়ার', Phone: '01319482602', BloodGroup: 'AB+', Department: 'IR', Session: '24-25' },
+    { Name: 'শুকরিয়া খানম', Phone: '01706918524', BloodGroup: 'O+', Department: 'IR', Session: '24-25' },
+    { Name: 'জয়া বিশ্বাস', Phone: '01905259311', BloodGroup: 'A+', Department: 'IR', Session: '24-25' },
+    { Name: 'নাফিয়া আফসার ঐশী', Phone: '01956070364', BloodGroup: 'A+', Department: 'IR', Session: '24-25' },
+    { Name: 'রাতি মন্ডল', Phone: '01627056020', BloodGroup: 'O+', Department: 'IR', Session: '24-25' },
+    { Name: 'ভগবর্তী সূত্রধর কাব্য', Phone: '01973437687', BloodGroup: 'B+', Department: 'IR', Session: '24-25' },
+
+    // Page 16 & 17: BOT (24-25)
+    { Name: 'Mst. Anika Akter', Phone: '01725146467', BloodGroup: 'A+', Department: 'BOT', Session: '24-25' },
+    { Name: 'Rubayda Begum', Phone: '01346809634', BloodGroup: 'A+', Department: 'BOT', Session: '24-25' },
+    { Name: 'Tamim Ahmed', Phone: '01521720568', BloodGroup: 'A+', Department: 'BOT', Session: '24-25' },
+    { Name: 'Md. Majid Mia', Phone: '01516526775', BloodGroup: 'O+', Department: 'BOT', Session: '24-25' },
+    { Name: 'Srijon Sarker', Phone: '01326255679', BloodGroup: 'O-', Department: 'BOT', Session: '24-25' },
+    { Name: 'মোছাঃ মৌসুমী আক্তার', Phone: '01728882046', BloodGroup: 'B+', Department: 'BOT', Session: '24-25' },
+    { Name: 'মোছাঃ ইয়াসমিন আক্তার', Phone: '01963150746', BloodGroup: 'AB+', Department: 'BOT', Session: '24-25' },
+    { Name: 'Arifa Islam Towa', Phone: '01408264821', BloodGroup: 'O+', Department: 'BOT', Session: '24-25' },
+    { Name: 'Oishy Akter Nijhum', Phone: '01302054899', BloodGroup: 'B+', Department: 'BOT', Session: '24-25' },
+    { Name: 'Sadia Islam', Phone: '01327022107', BloodGroup: 'O+', Department: 'BOT', Session: '24-25' },
+    { Name: 'Jelia Ferdous Joya', Phone: '01343928225', BloodGroup: 'O+', Department: 'BOT', Session: '24-25' },
+    { Name: 'Marzan', Phone: '01947976393', BloodGroup: 'A+', Department: 'BOT', Session: '24-25' },
+    { Name: 'Nafia Rahman', Phone: '01324599284', BloodGroup: 'O+', Department: 'BOT', Session: '24-25' },
+    { Name: 'Ishrat Jahan', Phone: '01404081571', BloodGroup: 'A+', Department: 'BOT', Session: '24-25' },
+    { Name: 'Sabbir Hossen', Phone: '01846445655', BloodGroup: 'O+', Department: 'BOT', Session: '24-25' },
+    { Name: 'MD. YEASIN ARAFAT', Phone: '01992655246', BloodGroup: 'O+', Department: 'BOT', Session: '24-25' },
+    { Name: 'TONMOY BISWAS', Phone: '01979794733', BloodGroup: 'A+', Department: 'BOT', Session: '24-25' },
+
+    // Page 19: EEE (24-25)
+    { Name: 'শুভ্রজিৎ সাহা', Phone: '01611071498', BloodGroup: 'O+', Department: 'EEE', Session: '24-25' },
+    { Name: 'হৃদয় মৌলিক', Phone: '01728306460', BloodGroup: 'A-', Department: 'EEE', Session: '24-25' },
+    { Name: 'মোঃ আশিকুজ্জামান', Phone: '01330701202', BloodGroup: 'AB+', Department: 'EEE', Session: '24-25' },
+    { Name: 'মোঃ লিমন মিয়া', Phone: '01743260806', BloodGroup: 'O+', Department: 'EEE', Session: '24-25' },
+    { Name: 'কার্তিক চন্দ্র রায়', Phone: '01716433957', BloodGroup: 'O+', Department: 'EEE', Session: '24-25' },
+    { Name: 'সায়মান সাকিব', Phone: '01868196250', BloodGroup: 'A+', Department: 'EEE', Session: '24-25' },
+    { Name: 'আল ফাহাদ', Phone: '01778105101', BloodGroup: 'O+', Department: 'EEE', Session: '24-25' },
+    { Name: 'জয় চাকমা', Phone: '01533969501', BloodGroup: 'A+', Department: 'EEE', Session: '24-25' },
+    { Name: 'রিফাতুল', Phone: '01935095787', BloodGroup: 'B+', Department: 'EEE', Session: '24-25' },
+    { Name: 'রমজান', Phone: '01793885794', BloodGroup: 'B+', Department: 'EEE', Session: '24-25' },
+    { Name: 'মোঃ তানভীর', Phone: '01910653160', BloodGroup: 'O+', Department: 'EEE', Session: '24-25' },
+    { Name: 'মোঃ সাহাবুদ্দীন', Phone: '01637473481', BloodGroup: 'A+', Department: 'EEE', Session: '24-25' },
+
+    // Page 20: ASVM (24-25)
+    { Name: 'সুজয় দাস', Phone: '01819867832', BloodGroup: 'O-', Department: 'ASVM', Session: '24-25' },
+    { Name: 'জোবায়েদা পারভীন', Phone: '01618626280', BloodGroup: 'O+', Department: 'ASVM', Session: '24-25' },
+    { Name: 'অমিয় কুমার বিশ্বাস', Phone: '01940001312', BloodGroup: 'O+', Department: 'ASVM', Session: '24-25' },
+    { Name: 'হেলাল রায়হান', Phone: '01747969755', BloodGroup: 'A+', Department: 'ASVM', Session: '24-25' },
+    { Name: 'আদিবা কায়েস তানিসা', Phone: '01721456544', BloodGroup: 'B+', Department: 'ASVM', Session: '24-25' },
+    { Name: 'হিরা লাল রায়', Phone: '01314411529', BloodGroup: 'B+', Department: 'ASVM', Session: '24-25' },
+    { Name: 'মোঃ আশরাফুল হাসান', Phone: '01895575058', BloodGroup: 'O+', Department: 'ASVM', Session: '24-25' },
+    { Name: 'সুনন্দা চ্যাটার্জি', Phone: '01306637497', BloodGroup: 'B+', Department: 'ASVM', Session: '24-25' },
+    { Name: 'লতিফা সরকার', Phone: '01608240129', BloodGroup: 'O+', Department: 'ASVM', Session: '24-25' },
+    { Name: 'আলভিনা জান্নাত', Phone: '01954020114', BloodGroup: 'O+', Department: 'ASVM', Session: '24-25' },
+    { Name: 'ফাহমিদা সুলতানা এনি', Phone: '01618064280', BloodGroup: 'B-', Department: 'ASVM', Session: '24-25' },
+    { Name: 'কাকলী বিশ্বাস', Phone: '01995308127', BloodGroup: 'A+', Department: 'ASVM', Session: '24-25' },
+
+    // Page 22: BGE (24-25)
+    { Name: 'কৌশিক হালদার', Phone: '01846056182', BloodGroup: 'A+', Department: 'BGE', Session: '24-25' },
+    { Name: 'সুমন হাসান', Phone: '01731216882', BloodGroup: 'A+', Department: 'BGE', Session: '24-25' },
+    { Name: 'মোঃ মোয়াজ্জেম হোসেন', Phone: '01798979417', BloodGroup: 'A+', Department: 'BGE', Session: '24-25' },
+    { Name: 'মোঃ রিয়াজুল করিম রনি', Phone: '01533478022', BloodGroup: 'O+', Department: 'BGE', Session: '24-25' },
+    { Name: 'মোঃ শাহরাম ভুঁইয়া', Phone: '01517834418', BloodGroup: 'B+', Department: 'BGE', Session: '24-25' },
+    { Name: 'শফিক চ্যাটার্জী', Phone: '01533403125', BloodGroup: 'A+', Department: 'BGE', Session: '24-25' },
+    { Name: 'ফারজানা আক্তার', Phone: '01776445722', BloodGroup: 'B+', Department: 'BGE', Session: '24-25' },
+    { Name: 'সাদিয়া সঙ্গীী', Phone: '01721498221', BloodGroup: 'B+', Department: 'BGE', Session: '24-25' },
+    { Name: 'হাফেজা', Phone: '01753295983', BloodGroup: 'B+', Department: 'BGE', Session: '24-25' },
+    { Name: 'হাফসা বিনতে ওসমান', Phone: '01948412407', BloodGroup: 'B+', Department: 'BGE', Session: '24-25' },
+    { Name: 'মোছাঃ আক্তার কুরাইশী', Phone: '01926572624', BloodGroup: 'A+', Department: 'BGE', Session: '24-25' },
+    { Name: 'মাহফুজা রাহাত', Phone: '01748027938', BloodGroup: 'O+', Department: 'BGE', Session: '24-25' },
+    { Name: 'আমিয়া পারভীন তপু', Phone: '01705252546', BloodGroup: 'O+', Department: 'BGE', Session: '24-25' },
+    { Name: 'রাফেয়া আক্তার', Phone: '01840579567', BloodGroup: 'B+', Department: 'BGE', Session: '24-25' },
+    { Name: 'সাদিয়া আফরিন', Phone: '01616581585', BloodGroup: 'AB+', Department: 'BGE', Session: '24-25' },
+    { Name: 'ছোল বিশ্বাস', Phone: '01952407271', BloodGroup: 'O+', Department: 'BGE', Session: '24-25' },
+    { Name: 'আফরিন', Phone: '01376577930', BloodGroup: 'B+', Department: 'BGE', Session: '24-25' },
+    { Name: 'জয়শ্রী সরকার জয়ী', Phone: '01754368386', BloodGroup: 'B+', Department: 'BGE', Session: '24-25' },
+    { Name: 'সোহেলী বিশ্বাস', Phone: '01302658065', BloodGroup: 'B+', Department: 'BGE', Session: '24-25' },
+    { Name: 'সোয়াইব হোসেন', Phone: '01853018026', BloodGroup: 'B+', Department: 'BGE', Session: '24-25' },
+    { Name: 'মোহাম্মাদ মোস্তফা', Phone: '01891831405', BloodGroup: 'AB+', Department: 'BGE', Session: '24-25' },
+    { Name: 'তানভীর মাহমুদ নামির', Phone: '01932043890', BloodGroup: 'B+', Department: 'BGE', Session: '24-25' },
+
+    // Page 23 & 24: STA (24-25)
+    { Name: 'আয়েশা সিদ্দিকা', Phone: '01595614952', BloodGroup: 'O+', Department: 'STA', Session: '24-25' },
+    { Name: 'মোহনা আক্তার', Phone: '01736403188', BloodGroup: 'O+', Department: 'STA', Session: '24-25' },
+    { Name: 'নিলুফা ইয়াসমিন সিদ্দিকা', Phone: '01792937623', BloodGroup: 'B+', Department: 'STA', Session: '24-25' },
+    { Name: 'সামান্তা আক্তার', Phone: '01877788603', BloodGroup: 'O+', Department: 'STA', Session: '24-25' },
+    { Name: 'Mst. Tanvin Akter', Phone: '01838272196', BloodGroup: 'AB+', Department: 'STA', Session: '24-25' },
+    { Name: 'নাবিলা স্মৃতি', Phone: '01782480292', BloodGroup: 'B+', Department: 'STA', Session: '24-25' },
+    { Name: 'প্রীতি সাহা', Phone: '01630648064', BloodGroup: 'O+', Department: 'STA', Session: '24-25' },
+    { Name: 'প্রেরণা চাকমা', Phone: '01604292756', BloodGroup: 'A+', Department: 'STA', Session: '24-25' },
+    { Name: 'ছায়েরা আক্তার', Phone: '01846263339', BloodGroup: 'O+', Department: 'STA', Session: '24-25' },
+    { Name: 'আনিকা সুন্নাহ', Phone: '01714512489', BloodGroup: 'B+', Department: 'STA', Session: '24-25' },
+    { Name: 'জান্নাতুল ফেরদৌস প্রেরণা', Phone: '01484264707', BloodGroup: 'A+', Department: 'STA', Session: '24-25' },
+    { Name: 'মোছাম্মাৎ খাতুন', Phone: '01612011069', BloodGroup: 'B+', Department: 'STA', Session: '24-25' },
+    { Name: 'অর্পিতা সরকার', Phone: '01943691122', BloodGroup: 'B+', Department: 'STA', Session: '24-25' },
+    { Name: 'ওয়াজিব', Phone: '01303937038', BloodGroup: 'A+', Department: 'STA', Session: '24-25' },
+    { Name: 'নাজমুল', Phone: '01307015731', BloodGroup: 'O-', Department: 'STA', Session: '24-25' },
+    { Name: 'ইন্তেসার', Phone: '01070632018', BloodGroup: 'AB+', Department: 'STA', Session: '24-25' },
+    { Name: 'উত্তস', Phone: '01928711279', BloodGroup: 'A+', Department: 'STA', Session: '24-25' },
+    { Name: 'ফেরদৌস', Phone: '01312191966', BloodGroup: 'A-', Department: 'STA', Session: '24-25' },
+    { Name: 'তামিম', Phone: '01610898342', BloodGroup: 'B+', Department: 'STA', Session: '24-25' },
+    { Name: 'মামুন', Phone: '01612899411', BloodGroup: 'A+', Department: 'STA', Session: '24-25' },
+    { Name: 'হাদি', Phone: '01890230696', BloodGroup: 'O+', Department: 'STA', Session: '24-25' },
+    { Name: 'কায়সার', Phone: '01799121299', BloodGroup: 'B+', Department: 'STA', Session: '24-25' },
+
+    // Page 25: CHE (24-25)
+    { Name: 'মোঃ আবিদুর রহমান জুয়েল', Phone: '01797860603', BloodGroup: 'B+', Department: 'CHE', Session: '24-25' },
+    { Name: 'মোঃ সাহাদাত সাবিল', Phone: '01989820805', BloodGroup: 'AB+', Department: 'CHE', Session: '24-25' },
+    { Name: 'মোসাদ্দেক আকরাম', Phone: '01571348513', BloodGroup: 'O+', Department: 'CHE', Session: '24-25' },
+    { Name: 'জিউমান আহমেদ নীলয়', Phone: '01969606903', BloodGroup: 'B+', Department: 'CHE', Session: '24-25' },
+    { Name: 'মোঃ মুরাদ হাসান', Phone: '01977060607', BloodGroup: 'A+', Department: 'CHE', Session: '24-25' },
+    { Name: 'নুসরত জাহান প্রভা', Phone: '01961976862', BloodGroup: 'A+', Department: 'CHE', Session: '24-25' },
+    { Name: 'অর্পিতা বাড়ই', Phone: '01705007995', BloodGroup: 'AB+', Department: 'CHE', Session: '24-25' },
+    { Name: 'আবিদুর রহমান', Phone: '01933930392', BloodGroup: 'B+', Department: 'CHE', Session: '24-25' },
+    { Name: 'মোশাররফ হোসেন', Phone: '01309799798', BloodGroup: 'B+', Department: 'CHE', Session: '24-25' },
+    { Name: 'মোঃ নাঈম হাসান', Phone: '01723733723', BloodGroup: 'B+', Department: 'CHE', Session: '24-25' },
+    { Name: 'মোস্তাফিজুর রহমান', Phone: '01840705471', BloodGroup: 'A+', Department: 'CHE', Session: '24-25' },
+    { Name: 'মোক্তাদীর রহমান বিজয়', Phone: '01612578892', BloodGroup: 'A+', Department: 'CHE', Session: '24-25' },
+    { Name: 'মোঃ তারেক রহমান', Phone: '01307685017', BloodGroup: 'O-', Department: 'CHE', Session: '24-25' },
+    { Name: 'মোঃ লিখন রানা', Phone: '01759318375', BloodGroup: 'A+', Department: 'CHE', Session: '24-25' },
+    { Name: 'শরিয়ান রানা প্রিতম', Phone: '01758086538', BloodGroup: 'O+', Department: 'CHE', Session: '24-25' },
+    { Name: 'হামিদুল ইসলাম রাকিব', Phone: '01967815560', BloodGroup: 'O+', Department: 'CHE', Session: '24-25' },
+    { Name: 'মুস্তাকিম রকিব', Phone: '01791638315', BloodGroup: 'O+', Department: 'CHE', Session: '24-25' },
+
+    // Page 26: BMB (24-25)
+    { Name: 'তাহমিদুর রহমান রিয়াদ', Phone: '01779040653', BloodGroup: 'B+', Department: 'BMB', Session: '24-25' },
+    { Name: 'মোছাঃ সাদিয়া সুলতানা জোতি', Phone: '01749228850', BloodGroup: 'B+', Department: 'BMB', Session: '24-25' },
+    { Name: 'মোছাঃ মারজিনা আক্তার রিয়া', Phone: '01798975829', BloodGroup: 'A+', Department: 'BMB', Session: '24-25' },
+    { Name: 'নাজমা খাতুন', Phone: '01332766294', BloodGroup: 'O+', Department: 'BMB', Session: '24-25' },
+    { Name: 'তাননুর জাহান নুরী', Phone: '01608906782', BloodGroup: 'A+', Department: 'BMB', Session: '24-25' },
+    { Name: 'সাদিয়া আফরিন', Phone: '01787013793', BloodGroup: 'O+', Department: 'BMB', Session: '24-25' },
+    { Name: 'ফারিহা তাসনিম', Phone: '01812197742', BloodGroup: 'O+', Department: 'BMB', Session: '24-25' },
+    { Name: 'তানিয়া আফরিন', Phone: '01624211383', BloodGroup: 'O+', Department: 'BMB', Session: '24-25' },
+    { Name: 'হুমায়রা তাসনুভা', Phone: '01934476263', BloodGroup: 'A+', Department: 'BMB', Session: '24-25' },
+
+    // Page 27: MATH (24-25)
+    { Name: 'মৌমিতা অলঙ্কার', Phone: '01710747272', BloodGroup: 'O+', Department: 'MATH', Session: '24-25' },
+    { Name: 'Fahmida Akterz', Phone: '01846777339', BloodGroup: 'B+', Department: 'MATH', Session: '24-25' },
+    { Name: 'Fariya Siddika Mysha', Phone: '01320499406', BloodGroup: 'O+', Department: 'MATH', Session: '24-25' },
+    { Name: 'Mili Akter Riya', Phone: '01858291707', BloodGroup: 'A+', Department: 'MATH', Session: '24-25' },
+    { Name: 'Kamreen Nahan', Phone: '01719443729', BloodGroup: 'B+', Department: 'MATH', Session: '24-25' },
+    { Name: 'Fatema Akter Rifat', Phone: '01993708180', BloodGroup: 'A+', Department: 'MATH', Session: '24-25' },
+    { Name: 'Nowrin Jamini Rokeya', Phone: '01914298995', BloodGroup: 'A+', Department: 'MATH', Session: '24-25' },
+    { Name: 'Isteak Ahmed', Phone: '01409407659', BloodGroup: 'B-', Department: 'MATH', Session: '24-25' },
+    { Name: 'Shuvo', Phone: '01613552716', BloodGroup: 'A+', Department: 'MATH', Session: '24-25' },
+    { Name: 'Mithun', Phone: '01887469027', BloodGroup: 'B+', Department: 'MATH', Session: '24-25' },
+    { Name: 'Milon', Phone: '01940647986', BloodGroup: 'O+', Department: 'MATH', Session: '24-25' },
+    { Name: 'Moon', Phone: '01790105906', BloodGroup: 'O+', Department: 'MATH', Session: '24-25' },
+    { Name: 'Munna', Phone: '01669047799', BloodGroup: 'B+', Department: 'MATH', Session: '24-25' },
+    { Name: 'Imran', Phone: '01772282053', BloodGroup: 'AB+', Department: 'MATH', Session: '24-25' },
+    { Name: 'Nadim', Phone: '01714324161', BloodGroup: 'A+', Department: 'MATH', Session: '24-25' },
+    { Name: 'Ishtiak', Phone: '01709933500', BloodGroup: 'O+', Department: 'MATH', Session: '24-25' },
+    { Name: 'Nahid', Phone: '01861944022', BloodGroup: 'O+', Department: 'MATH', Session: '24-25' },
+    { Name: 'Tonmoy', Phone: '01756118405', BloodGroup: 'B+', Department: 'MATH', Session: '24-25' },
+    { Name: 'Siyam', Phone: '01862957105', BloodGroup: 'B+', Department: 'MATH', Session: '24-25' },
+    { Name: 'Mustafizur', Phone: '01776609904', BloodGroup: 'A+', Department: 'MATH', Session: '24-25' },
+    { Name: 'Ashraful', Phone: '01723755063', BloodGroup: 'A+', Department: 'MATH', Session: '24-25' },
+    { Name: 'Turja Biswas', Phone: '01303172033', BloodGroup: 'B+', Department: 'MATH', Session: '24-25' },
+    { Name: 'Syeda Silme', Phone: '01577303459', BloodGroup: 'O+', Department: 'MATH', Session: '24-25' },
+    { Name: 'Nadia Sultana Akhi', Phone: '01990435950', BloodGroup: 'O+', Department: 'MATH', Session: '24-25' },
+    { Name: 'Poospo Akter', Phone: '01836813822', BloodGroup: 'O+', Department: 'MATH', Session: '24-25' },
+
+    // Page 28: ECO (24-25)
+    { Name: 'আরিব', Phone: '01606182471', BloodGroup: 'O+', Department: 'ECO', Session: '24-25' },
+    { Name: 'মোসাম্মাৎ সুবহা', Phone: '01743459109', BloodGroup: 'O+', Department: 'ECO', Session: '24-25' },
+    { Name: 'আকেলুল', Phone: '01966701255', BloodGroup: 'O-', Department: 'ECO', Session: '24-25' },
+    { Name: 'মোঃ ওয়াসিম রানা', Phone: '01576997935', BloodGroup: 'B+', Department: 'ECO', Session: '24-25' },
+    { Name: 'শিউলী আক্তার', Phone: '01995792747', BloodGroup: 'A+', Department: 'ECO', Session: '24-25' },
+    { Name: 'আশিকুর রহমান', Phone: '01985677556', BloodGroup: 'B+', Department: 'ECO', Session: '24-25' },
+    { Name: 'তানজি ভাইয়া', Phone: '01303704231', BloodGroup: 'O+', Department: 'ECO', Session: '24-25' },
+    { Name: 'আফিফা আক্তার', Phone: '01889182559', BloodGroup: 'A+', Department: 'ECO', Session: '24-25' },
+    { Name: 'স্বাধী আমিনা', Phone: '01867969531', BloodGroup: 'O+', Department: 'ECO', Session: '24-25' },
+    { Name: 'আল ফারদিন', Phone: '01305652268', BloodGroup: 'A+', Department: 'ECO', Session: '24-25' },
+    { Name: 'অনন্যা বিশ্বাস', Phone: '01705285777', BloodGroup: 'AB+', Department: 'ECO', Session: '24-25' },
+    { Name: 'প্রীতি প্রসাদ', Phone: '017092600128', BloodGroup: 'B+', Department: 'ECO', Session: '24-25' }
+  ];
+
+  console.log(`Total PDF donors to import: ${donors.length}`);
+
+  let added = 0;
+  let skipped = 0;
+
+  for (const item of donors) {
+    const existing = await prisma.user.findUnique({
+      where: { phone: item.Phone }
+    });
+
+    if (existing) {
+      skipped++;
+      continue;
+    }
+
+    try {
+      await prisma.user.create({
+        data: {
+          name: item.Name,
+          phone: item.Phone,
+          password: 'default_password',
+          role: 'DONOR',
+          donorProfile: {
+            create: {
+              bloodGroup: item.BloodGroup,
+              department: item.Department,
+              session: item.Session
+            }
+          }
+        }
+      });
+      added++;
+    } catch (err) {
+      console.error(`Error inserting ${item.Name} (${item.Phone}):`, err.message);
+      skipped++;
+    }
+  }
+
+  console.log(`PDF Import Finished! Added: ${added}, Skipped/Existing: ${skipped}`);
+  await pool.end();
+}
+
+main().catch(e => {
+  console.error(e);
+  process.exit(1);
+});
